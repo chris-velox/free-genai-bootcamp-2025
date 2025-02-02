@@ -18,10 +18,41 @@ SprachPortal shall provide the following language teach functions within or thro
 
 The Sentence Constructor will generate sentences at the appropriate level for the student to translate. The student can select the topic the sentences will cover, the translation direction (English to German, or German to English) and the number of sentences for the exercise.
 
+#### Visual Vocabulary Flashcards
+
 #### Writing Practice
 
 The Writing Practice activity will allow the student to construct their own writing in German and the system will check the sentence for spelling and grammar correctness, and the literalism of the sentence. Ideally, the system will also recognize typical English language idioms and colloquialisms and provide suggestions for equivalent German phrases.
 
+#### Listen to Learn
+
+#### Speak to Learn
+
+#### Graphic Novel Immersion Reading
+
 #### Text Adventure Immersion Game
 
-The Text Adventure Immersion Game will generate a German "choose your own adventure"
+The Text Adventure Immersion Game will generate a German "choose your own adventure" story at an appropriate level for the student. Student level will determine the length of the story and complexity of the sentences.
+
+### Student-Related Functions
+
+#### Student Registration
+
+#### Student Activity Tracking
+
+### Teacher-Related Functions
+
+#### Teacher Registration
+
+#### Student Assignments
+
+#### Student Progress
+
+## Non-Functional Requirements
+
+### Performance and Capacity
+
+### Availability
+
+### Security and Privacy
+
