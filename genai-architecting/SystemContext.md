@@ -2,7 +2,7 @@
 
 ## System Diagram
 
-![System Diagram](image.png)
+![System Context Diagram](SystemContextDiagram.png)
 
 ## System Description
 
