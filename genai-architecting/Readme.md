@@ -7,3 +7,5 @@ The SprachPortal is a German-language teaching system that will provide on-deman
 ## [Data Strategy](DataStrategy)
 
 ## [System Context](SystemContext.md)
+
+## [Conceptual Design](ConceptualDesign.md)
