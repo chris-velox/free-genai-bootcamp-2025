@@ -14,6 +14,7 @@ The LangPortal provides the main interface for the students and teachers to acce
 
 ### SentenceConstructor
 
+
 ![Conceptual Application Diagram for Sentence Constructor](SentenceConstructorConceptualApplicationDiagram.png)
 
 In the Sentence Constructor activity, the student can request that the activity provide sentences on any topic within the guardrails of the system.
@@ -24,6 +25,6 @@ If accepted, the prompt is passed to the **Cache** to see if data has already be
 
 After the **Cache** check, the prompt goes to the **Retrieval Augmented Generation** function that checks the local word and sentence **Database**. If the appropriate words and translations are not in the database, the **RAG** function can connect to approved content sites to retrieve and construct example sentences.
 
-Once the RAG has collected the appropriate content and words, it passes the prompt and other data to the **Large Language Model** to construct sentences for the student to translate. The student enters their attempted translation and the system checks the translation against the translation in the Large Language Model.
+Once the RAG has collected the appropriate content and words, it passes the prompt and other data to the **Large Language Model** to construct sentences for the student to translate. The student enters their attempted translation and the system checks the translation against the translation in the Large Language Model. The Sentence Constructor provides guidance to the student on how to create the sentence in German.
 
 All responses to the student pass through the **Output Guardrails** to make sure no inappropriate content is sent back to the student.
