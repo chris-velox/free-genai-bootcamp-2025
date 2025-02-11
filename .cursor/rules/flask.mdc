@@ -1,0 +1,98 @@
+---
+description: Rules for flask code
+globs: /backend-flask
+---
+
+# Always use application factories
+
+## BAD - global Flask instance
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return 'Hello'
+
+## GOOD - using application factory pattern
+def create_app(test_config=None):
+    app = Flask(__name__)
+    
+    if test_config is None:
+        app.config.from_mapping(
+            DATABASE='database.db',
+            SECRET_KEY='dev'  # Change in production!
+        )
+    else:
+        app.config.update(test_config)
+        
+    # Initialize extensions
+    db.init_app(app)
+    
+    # Register blueprints
+    from . import auth, blog
+    app.register_blueprint(auth.bp)
+    app.register_blueprint(blog.bp)
+    
+    return app
+
+# Use blueprints for route organization
+
+## BAD - all routes in one file
+@app.route('/login')
+@app.route('/register')
+@app.route('/profile')
+
+## GOOD - organized routes using blueprints
+from flask import Blueprint
+
+bp = Blueprint('auth', __name__, url_prefix='/auth')
+
+@bp.route('/login')
+def login():
+    return render_template('auth/login.html')
+
+@bp.route('/register')
+def register():
+    return render_template('auth/register.html')
+
+## In app.py
+def create_app():
+    app = Flask(__name__)
+    from .routes import auth
+    app.register_blueprint(auth.bp)
+
+# Properly handle CORS and Security Headers
+
+## BAD - overly permissive CORS
+CORS(app, resources={r"/*": {"origins": "*"}})
+
+## GOOD - explicit CORS configuration with proper error handling
+def create_app():
+    app = Flask(__name__)
+    
+    # Get allowed origins from configuration
+    allowed_origins = app.config.get('ALLOWED_ORIGINS', [])
+    
+    # Configure CORS with specific origins
+    CORS(app, resources={
+        r"/*": {
+            "origins": allowed_origins,
+            "methods": ["GET", "POST", "PUT", "DELETE"],
+            "allow_headers": ["Content-Type", "Authorization"],
+            "expose_headers": ["Content-Range", "X-Total-Count"]
+        }
+    })
+    
+    # Set security headers
+    @app.after_request
+    def add_security_headers(response):
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+        return response
+    
+    # Handle CORS preflight requests
+    @app.route('/', methods=['OPTIONS'])
+    def handle_options():
+        return '', 204
+

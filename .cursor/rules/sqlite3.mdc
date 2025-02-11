@@ -1,0 +1,57 @@
+---
+description: Rules for dealing with sqlite in python
+globs: /backend-flask
+---
+
+# Rule 1: Always use parameterized queries
+
+## BAD - vulnerable to SQL injection
+cursor.execute(f"SELECT * FROM users WHERE name = '{user_input}'")
+
+## GOOD - use parameterized queries with ? placeholders
+cursor.execute("SELECT * FROM users WHERE name = ?", (user_input,))
+
+# Rule 2: Properly manage database connections
+
+## BAD - connection not properly closed
+def get_data():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM table")
+    return cursor.fetchall()
+
+## GOOD - using context management
+def get_data():
+    with sqlite3.connect('database.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM table")
+        return cursor.fetchall()
+
+## EVEN BETTER - using Flask's application context (as seen in the codebase)
+class Db:
+    def get(self):
+        if 'db' not in g:
+            g.db = sqlite3.connect(self.database)
+        return g.db
+
+    def close(self):
+        db = g.pop('db', None)
+        if db is not None:
+            db.close()
+
+# Rule 3: Always commit transactions explicitly
+
+## BAD - changes might be lost without commit
+cursor.execute("INSERT INTO users (name) VALUES (?)", ("John",))
+
+## GOOD - explicit commit after modifications
+cursor.execute("INSERT INTO users (name) VALUES (?)", ("John",))
+conn.commit()
+
+## BETTER - using try/except with rollback
+try:
+    cursor.execute("INSERT INTO users (name) VALUES (?)", ("John",))
+    conn.commit()
+except Exception as e:
+    conn.rollback()
+    raise e
