@@ -9,32 +9,33 @@ def setup_logging():
 def test_create_study_session_success(client, app):
     logging.info("Starting test_create_study_session_success")
     # Insert test data
-    with app.db.cursor() as cursor:
-        logging.info("Creating test data")
-        # Create test group
-        cursor.execute('''
-            INSERT INTO groups (name, created_at) 
-            VALUES ('Test Group', datetime('now'))
-        ''')
-        group_id = cursor.lastrowid
+    cursor = app.db.cursor()
+    
+    # Create test group
+    cursor.execute('''
+        INSERT INTO groups (name, created_at) 
+        VALUES ('Test Group', datetime('now'))
+    ''')
+    group_id = cursor.lastrowid
 
-        # Create test activity
-        cursor.execute('''
-            INSERT INTO study_activities (name, created_at) 
-            VALUES ('Test Activity', datetime('now'))
-        ''')
-        activity_id = cursor.lastrowid
+    # Create test activity
+    cursor.execute('''
+        INSERT INTO study_activities (name, created_at) 
+        VALUES ('Test Activity', datetime('now'))
+    ''')
+    activity_id = cursor.lastrowid
 
-        # Create test words
-        word_ids = []
-        for i in range(3):
-            cursor.execute('''
-                INSERT INTO words (kanji, romaji, english, created_at)
-                VALUES (?, ?, ?, datetime('now'))
-            ''', (f'漢字{i}', f'kanji{i}', f'english{i}'))
-            word_ids.append(cursor.lastrowid)
-        
-        app.db.commit()
+    # Create test words
+    word_ids = []
+    for i in range(3):
+        cursor.execute('''
+            INSERT INTO words (kanji, romaji, english, created_at)
+            VALUES (?, ?, ?, datetime('now'))
+        ''', (f'漢字{i}', f'kanji{i}', f'english{i}'))
+        word_ids.append(cursor.lastrowid)
+    
+    app.db.commit()
+    cursor.close()
 
     # Test creating a study session
     response = client.post('/api/study-sessions', json={
@@ -92,21 +93,22 @@ def test_create_study_session_invalid_references(client, app):
     assert response.status_code == 400
     assert 'Invalid group_id or study_activity_id' in response.get_json()['error']
 
-    # Create valid group and activity but test invalid word_ids
-    with app.db.cursor() as cursor:
-        cursor.execute('''
-            INSERT INTO groups (name, created_at) 
-            VALUES ('Test Group', datetime('now'))
-        ''')
-        group_id = cursor.lastrowid
+    # Create valid group and activity
+    cursor = app.db.cursor()
+    cursor.execute('''
+        INSERT INTO groups (name, created_at) 
+        VALUES ('Test Group', datetime('now'))
+    ''')
+    group_id = cursor.lastrowid
 
-        cursor.execute('''
-            INSERT INTO study_activities (name, created_at) 
-            VALUES ('Test Activity', datetime('now'))
-        ''')
-        activity_id = cursor.lastrowid
-        
-        app.db.commit()
+    cursor.execute('''
+        INSERT INTO study_activities (name, created_at) 
+        VALUES ('Test Activity', datetime('now'))
+    ''')
+    activity_id = cursor.lastrowid
+    
+    app.db.commit()
+    cursor.close()
 
     response = client.post('/api/study-sessions', json={
         'group_id': group_id,
