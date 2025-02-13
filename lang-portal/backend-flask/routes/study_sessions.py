@@ -270,7 +270,151 @@ def load(app):
     except Exception as e:
       return jsonify({"error": str(e)}), 500
 
-  # todo POST /study_sessions/:id/review
+  @app.route('/api/study-sessions/<id>/review', methods=['POST'])
+  @cross_origin()
+  def submit_study_session_review(id):
+    try:
+        # Validate JSON
+        if not request.is_json:
+            logging.warning("Request missing JSON data")
+            return jsonify({"error": "Request must be JSON"}), 400
+
+        data = request.get_json()
+
+        # Validate reviews array exists
+        if 'reviews' not in data:
+            logging.warning("Missing reviews array in request")
+            return jsonify({"error": "Missing reviews array"}), 400
+
+        reviews = data['reviews']
+
+        # Validate reviews format
+        if not isinstance(reviews, list):
+            logging.warning(f"Invalid reviews format: {type(reviews)}")
+            return jsonify({"error": "Reviews must be an array"}), 400
+
+        # Validate each review item
+        for review in reviews:
+            if not isinstance(review, dict):
+                logging.warning(f"Invalid review item format: {type(review)}")
+                return jsonify({"error": "Each review must be an object"}), 400
+            if 'word_id' not in review or 'is_correct' not in review:
+                logging.warning(f"Missing required fields in review: {review}")
+                return jsonify({"error": "Each review must have word_id and is_correct"}), 400
+            if not isinstance(review['word_id'], int):
+                logging.warning(f"Invalid word_id type: {type(review['word_id'])}")
+                return jsonify({"error": "word_id must be an integer"}), 400
+            if not isinstance(review['is_correct'], bool):
+                logging.warning(f"Invalid is_correct type: {type(review['is_correct'])}")
+                return jsonify({"error": "is_correct must be a boolean"}), 400
+
+        cursor = app.db.cursor()
+
+        # Check if study session exists and is not completed
+        cursor.execute('''
+            SELECT id, completed 
+            FROM study_sessions 
+            WHERE id = ?
+        ''', (id,))
+        
+        session = cursor.fetchone()
+        if not session:
+            logging.warning(f"Study session not found: {id}")
+            return jsonify({"error": "Study session not found"}), 404
+            
+        if session['completed']:
+            logging.warning(f"Attempted to review completed session: {id}")
+            return jsonify({"error": "Study session is already completed"}), 400
+
+        # Get total number of words in session
+        cursor.execute('''
+            SELECT COUNT(*) as total_words
+            FROM word_review_items
+            WHERE study_session_id = ?
+        ''', (id,))
+        total_words = cursor.fetchone()['total_words']
+
+        # Check if all words are being reviewed
+        if len(reviews) != total_words:
+            logging.warning(f"Incomplete review submission. Expected {total_words} words, got {len(reviews)}")
+            return jsonify({
+                "error": "All words in the session must be reviewed",
+                "expected_words": total_words,
+                "submitted_words": len(reviews)
+            }), 400
+
+        # Verify all words exist in the session
+        word_ids = [review['word_id'] for review in reviews]
+        word_ids_str = ','.join('?' * len(word_ids))
+
+        cursor.execute(f'''
+            SELECT COUNT(DISTINCT word_id) as count
+            FROM word_review_items
+            WHERE study_session_id = ? 
+            AND word_id IN ({word_ids_str})
+        ''', [id] + word_ids)
+
+        if cursor.fetchone()['count'] != len(word_ids):
+            logging.warning(f"Invalid word_ids for session {id}: {word_ids}")
+            return jsonify({"error": "One or more word_ids are invalid for this session"}), 400
+
+        # Update word review items and word stats
+        for review in reviews:
+            # Update the review item
+            cursor.execute('''
+                UPDATE word_review_items
+                SET correct = ?
+                WHERE study_session_id = ? 
+                AND word_id = ?
+            ''', (1 if review['is_correct'] else 0, id, review['word_id']))
+
+            # Update the word's overall stats
+            cursor.execute('''
+                UPDATE words
+                SET correct_count = correct_count + ?,
+                    wrong_count = wrong_count + ?
+                WHERE id = ?
+            ''', (
+                1 if review['is_correct'] else 0,
+                0 if review['is_correct'] else 1,
+                review['word_id']
+            ))
+
+        # Update study session completion time
+        cursor.execute('''
+            UPDATE study_sessions 
+            SET updated_at = datetime('now'),
+                completed = 1
+            WHERE id = ?
+        ''', (id,))
+
+        # Get updated session stats
+        cursor.execute('''
+            SELECT 
+                COUNT(*) as total_reviews,
+                SUM(CASE WHEN correct = 1 THEN 1 ELSE 0 END) as correct_count,
+                SUM(CASE WHEN correct = 0 THEN 1 ELSE 0 END) as wrong_count
+            FROM word_review_items
+            WHERE study_session_id = ?
+        ''', (id,))
+
+        stats = cursor.fetchone()
+
+        app.db.commit()
+
+        return jsonify({
+            "message": "Review submitted successfully",
+            "stats": {
+                "total_reviews": stats['total_reviews'],
+                "correct_count": stats['correct_count'],
+                "wrong_count": stats['wrong_count']
+            }
+        }), 200
+
+    except Exception as e:
+        logging.error(f"Error submitting review: {str(e)}", exc_info=True)
+        app.db.rollback()
+        return jsonify({"error": str(e)}), 500
 
   @app.route('/api/study-sessions/reset', methods=['POST'])
   @cross_origin()

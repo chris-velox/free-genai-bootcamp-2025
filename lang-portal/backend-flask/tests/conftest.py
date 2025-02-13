@@ -33,7 +33,9 @@ def app():
             kanji TEXT NOT NULL,
             romaji TEXT NOT NULL,
             english TEXT NOT NULL,
-            created_at DATETIME NOT NULL
+            created_at DATETIME NOT NULL,
+            correct_count INTEGER NOT NULL DEFAULT 0,
+            wrong_count INTEGER NOT NULL DEFAULT 0
         );
 
         CREATE TABLE study_sessions (
@@ -41,6 +43,8 @@ def app():
             group_id INTEGER NOT NULL,
             study_activity_id INTEGER NOT NULL,
             created_at DATETIME NOT NULL,
+            updated_at DATETIME,
+            completed INTEGER NOT NULL DEFAULT 0,
             FOREIGN KEY (group_id) REFERENCES groups(id),
             FOREIGN KEY (study_activity_id) REFERENCES study_activities(id)
         );
@@ -51,6 +55,7 @@ def app():
             word_id INTEGER NOT NULL,
             correct INTEGER NOT NULL DEFAULT 0,
             created_at DATETIME NOT NULL,
+            updated_at DATETIME,
             FOREIGN KEY (study_session_id) REFERENCES study_sessions(id),
             FOREIGN KEY (word_id) REFERENCES words(id)
         );
