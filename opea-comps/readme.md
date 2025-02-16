@@ -156,12 +156,17 @@ curl --noproxy "*" http://localhost:8008/api/generate -d '{                     
 
 ## Technical Uncertainty
 
-How to get a model running on a late-2013 iMac without a big GPU?
-Will it run?
-Can we run it using Docker Desktop in a container?
-Once it's running, how can we connect to it?
+How to get a model running on a late-2013 iMac without a big GPU? Use Docker with small language models, like Llama 3.2 (1b) and Gemma (2b) will work, but they are not fast.
+
+Will it run? Small language models in the 0.5-2 billion parameter range seem to run. I have tried a 7 billion parameter model before the bootcamp and my iMac went out to lunch.
+
+Can we run it using Docker Desktop in a container? Yes! In fact, we can run multiple models within the same container.
+
+Once it's running, how can we connect to it? We can connect directly to the language model using the API (/api/generate -d {payload}) or `docker exec -it` commands.
+
 How can we get a front-end for it to hide the API calls?
-Can we pull multiple models?
+
+Can we pull multiple models? Yes, we can pull models either through the API (/api/pull -d) or using `docker exec -it` commands.
 
 ## Models
 
