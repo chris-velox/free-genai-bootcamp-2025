@@ -178,3 +178,186 @@ Need to use small models because of system limitations.
 ## Notes
 
 Gemma:2b was much faster than Llama3.2:1b using the API, and was more concise.
+
+## Setting up WebUI for Ollama-Server via Docker
+
+Since I'm not a programmer, want to see if I can setup WebUI and connect to Ollama-Server container.
+
+### Docker Compose
+
+```yaml
+services:
+  ollama-server:
+    image: ollama/ollama
+    container_name: ollama-server
+    ports:
+      - ${LLM_ENDPOINT_PORT:-8008}:11434
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
+      host_ip: ${host_ip}
+    volumes:
+      - ollama-data:/root/.ollama
+
+  webui:
+    image: ghcr.io/open-webui/open-webui:main
+    ports:
+      - "3000:8080"
+    volumes:
+      - open-webui:/app/backend/data
+
+volumes:
+  open-webui:
+  ollama-data:
+
+networks:
+  default:
+    driver: bridge
+```
+
+**Note:** by using named volumes, the storage will persist between `docker compose down` and `docker compose up`, even though the containers themselves are removed from Docker.
+
+### Setting up WebUI
+
+After logging in (first account is admin account), go to Admin Panel -> Settings -> Connections
+
+Click the settings icon to the right of **Manage Ollama API Connections**.
+
+- **URL:** Set to the Docker server name and private port, not the published port.
+- **Key:** Put in the API key for Ollama-Server
+
+![Ollama API Connection Settings](image.png)
+
+### Download Models using WebUI
+
+Go to Admin Panel -> Settings -> Models and click the Manage Modules icon (looks like a download icon).
+
+Enter the Model name and click Download button.
+- llama3.2:1b
+- gemma:2b
+
+![Manage Models Panel](image-1.png)
+
+Active Models:
+
+![alt text](image-2.png)
+
+Working Chat results:
+
+![Why is the sky blue?](image-3.png)
+
+## Setting up Mega-Service
+
+### Installing python modules
+
+```sh
+uv pip install opea-comps
+```
+
+Installs multiple packages
+
+```text
+Resolved 93 packages in 2.85s
+      Built docx2txt==0.8
+Prepared 91 packages in 3.95s
+Installed 91 packages in 369ms
+ + aiofiles==24.1.0
+ + aiohappyeyeballs==2.4.6
+ + aiohttp==3.11.11
+ + aiosignal==1.3.2
+ + annotated-types==0.7.0
+ + anyio==4.8.0
+ + async-timeout==4.0.3
+ + attrs==25.1.0
+ + cachetools==5.5.1
+ + certifi==2025.1.31
+ + charset-normalizer==3.4.1
+ + dataclasses-json==0.6.7
+ + deprecated==1.2.18
+ + docarray==0.40.0
+ + docx2txt==0.8
+ + durationpy==0.9
+ + fastapi==0.115.7
+ + frozenlist==1.5.0
+ + google-auth==2.38.0
+ + googleapis-common-protos==1.67.0
+ + greenlet==3.1.1
+ + grpcio==1.70.0
+ + h11==0.14.0
+ + httpcore==1.0.7
+ + httpx==0.28.1
+ + httpx-sse==0.4.0
+ + idna==3.10
+ + importlib-metadata==8.5.0
+ + jsonpatch==1.33
+ + jsonpointer==3.0.0
+ + kubernetes==32.0.0
+ + langchain==0.3.15
+ + langchain-community==0.3.15
+ + langchain-core==0.3.35
+ + langchain-text-splitters==0.3.6
+ + langsmith==0.3.8
+ + markdown-it-py==3.0.0
+ + marshmallow==3.26.1
+ + mdurl==0.1.2
+ + multidict==6.1.0
+ + mypy-extensions==1.0.0
+ + numpy==1.26.4
+ + oauthlib==3.2.2
+ + opea-comps==1.2
+ + opentelemetry-api==1.29.0
+ + opentelemetry-exporter-otlp==1.29.0
+ + opentelemetry-exporter-otlp-proto-common==1.29.0
+ + opentelemetry-exporter-otlp-proto-grpc==1.29.0
+ + opentelemetry-exporter-otlp-proto-http==1.29.0
+ + opentelemetry-proto==1.29.0
+ + opentelemetry-sdk==1.29.0
+ + opentelemetry-semantic-conventions==0.50b0
+ + orjson==3.10.15
+ + packaging==24.2
+ + pillow==11.1.0
+ + prometheus-client==0.21.1
+ + prometheus-fastapi-instrumentator==7.0.2
+ + propcache==0.2.1
+ + protobuf==5.29.3
+ + pyasn1==0.6.1
+ + pyasn1-modules==0.4.1
+ + pydantic==2.10.6
+ + pydantic-core==2.27.2
+ + pydantic-settings==2.7.1
+ + pygments==2.19.1
+ + pypdf==5.1.0
+ + python-dateutil==2.9.0.post0
+ + python-dotenv==1.0.1
+ + python-multipart==0.0.20
+ + pyyaml==6.0.2
+ + requests==2.32.3
+ + requests-oauthlib==2.0.0
+ + requests-toolbelt==1.0.0
+ + rich==13.9.4
+ + rsa==4.9
+ + shortuuid==1.0.13
+ + six==1.17.0
+ + sniffio==1.3.1
+ + sqlalchemy==2.0.38
+ + starlette==0.45.3
+ + tenacity==9.0.0
+ + types-requests==2.32.0.20241016
+ + typing-extensions==4.12.2
+ + typing-inspect==0.9.0
+ + urllib3==2.3.0
+ + uvicorn==0.34.0
+ + websocket-client==1.8.0
+ + wrapt==1.17.2
+ + yarl==1.18.3
+ + zipp==3.21.0
+ + zstandard==0.23.0
+```
+
+### Create code
+
+Start with [OPEA MegaService example](https://opea-project.github.io/latest/GenAIComps/README.html#megaservice)
+
+

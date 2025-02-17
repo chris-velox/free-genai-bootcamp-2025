@@ -13,6 +13,19 @@ services:
       https_proxy: ${https_proxy}
       LLM_MODEL_ID: ${LLM_MODEL_ID}
       host_ip: ${host_ip}
+    volumes:
+      - ollama-data:/root/.ollama
+
+  webui:
+    image: ghcr.io/open-webui/open-webui:main
+    ports:
+      - "3000:8080"
+    volumes:
+      - open-webui:/app/backend/data
+
+volumes:
+  open-webui:
+  ollama-data:
 
 networks:
   default:
