@@ -148,8 +148,7 @@ Therefore, the blue color of the sky is a result of Rayleigh scattering, which i
 Test the model with API:
 
 ```sh
-curl --noproxy "*" http://localhost:8008/api/generate -d '{                                         49s free-genai-bootcamp-2025
-  "model": "gemma:2b",   
+curl --noproxy "*" http://localhost:8008/api/generate -d '{"model": "gemma:2b",
   "prompt":"Why is the sky blue?"
 }'
 ```
@@ -182,6 +181,8 @@ Gemma:2b was much faster than Llama3.2:1b using the API, and was more concise.
 ## Setting up WebUI for Ollama-Server via Docker
 
 Since I'm not a programmer, want to see if I can setup WebUI and connect to Ollama-Server container.
+
+[Open WebUI GitHub](https://github.com/open-webui/open-webui)
 
 ### Docker Compose
 
@@ -360,4 +361,60 @@ Installed 91 packages in 369ms
 
 Start with [OPEA MegaService example](https://opea-project.github.io/latest/GenAIComps/README.html#megaservice)
 
+Code didn't seem to work?
 
+Started with guidance on the [**Build MegaService of ChatQnA on AIPC**](https://opea-project.github.io/latest/GenAIExamples/ChatQnA/docker_compose/intel/cpu/aipc/README.html)
+
+Created container images for the Ollama Service and MegaService with guardrails.
+
+#### Build MegaService
+
+```sh
+cd ~/code/OPEA/GenAIExamples/ChatQnA
+docker build --no-cache -t opea/chatqna:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy  -f Dockerfile.guardrails .
+```
+
+#### Build Chat UI
+
+```sh
+cd ~/code/OPEA/GenAIExamples/ChatQnA/docker_compose/intel/cpu/aipc
+docker build --no-cache -t opea/chatqna-ui:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f ./docker/Dockerfile .
+```
+
+#### Build NGINX
+
+```sh
+cd ~/code/OPEA/GenAIComps
+docker build -t opea/nginx:latest --build-arg https_proxy=$https_proxy --build-arg http_proxy=$http_proxy -f comps/third_parties/nginx/src/Dockerfile .
+```
+
+#### Check Docker Images
+
+```sh
+docker image ls
+```
+
+```text
+REPOSITORY                               TAG       IMAGE ID       CREATED          SIZE
+opea/nginx                               latest    9a8f42443a3d   40 minutes ago   50.7MB
+opea/chatqna-ui                          latest    740f47c207a8   41 minutes ago   1.48GB
+opea/chatqna                             latest    b4c72c567d1a   45 minutes ago   496MB
+```
+
+#### Update docker-compose.yml
+
+Remove extra services and depends_on list.
+
+```sh
+docker compose up
+```
+
+#### Validate Services
+
+##### Ollama Service
+
+```sh
+curl http://${host_ip}:11434/api/generate -d '{"model": "llama3.2", "prompt":"What is Deep Learning?"}'
+```
+
+Still can't get this to work. Had to add the removed services back in. It's not happy.
