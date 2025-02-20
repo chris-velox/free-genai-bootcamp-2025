@@ -1,6 +1,6 @@
 import * as React from "react"
 import { useLocation, Link } from "react-router-dom"
-import { WholeWord, Group, Home, Hourglass, BookOpenText, Settings } from "lucide-react"
+import { WholeWord, Group, Home, Hourglass, BookOpenText, Settings, Import } from "lucide-react"
 
 import {
   Sidebar,
@@ -20,6 +20,7 @@ const navItems = [
   { icon: BookOpenText, name: 'Study Activities', path: '/study-activities' },
   { icon: WholeWord, name: 'Words', path: '/words' },
   { icon: Group, name: 'Word Groups', path: '/groups' },
+  { icon: Import, name: 'Import Words', path: '/import-words' },
   { icon: Hourglass, name: 'Sessions', path: '/sessions' },
   { icon: Settings, name: 'Settings', path: '/settings' },
 ]

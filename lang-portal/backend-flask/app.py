@@ -8,6 +8,10 @@ import routes.groups
 import routes.study_sessions
 import routes.dashboard
 import routes.study_activities
+import routes.vocab_importer
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def get_allowed_origins(app):
     try:
@@ -68,6 +72,7 @@ def create_app(test_config=None):
     routes.study_sessions.load(app)
     routes.dashboard.load(app)
     routes.study_activities.load(app)
+    routes.vocab_importer.load(app)
     
     return app
 
