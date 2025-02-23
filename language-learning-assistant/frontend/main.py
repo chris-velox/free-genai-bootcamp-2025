@@ -3,11 +3,17 @@ from typing import Dict
 import json
 from collections import Counter
 import re
+import os
+import sys
 
+# Add the backend directory to the Python path
+sys.path.insert(0, os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '../backend')))
 
 #from backend.chat import GroqChat
 from backend.chat import GroqChat
-from backend.get_transcript import YouTubeTranscriptDownloader
+from backend.get_transcript import YouTubeTranscriptDownloader, main as get_transcript # Import the get_transcript function
+from backend.structured_data import TranscriptStructurer  # Import the TranscriptStructurer class
 
 # Page config
 st.set_page_config(
@@ -160,8 +166,6 @@ def process_message(message: str):
         if response:
             st.markdown(response)
             st.session_state.messages.append({"role": "assistant", "content": response})
-
-
 
 def count_characters(text):
     """Count Japanese and total characters in text"""
@@ -326,6 +330,46 @@ def main():
             "transcript_loaded": st.session_state.transcript is not None,
             "chat_messages": len(st.session_state.messages)
         })
+
+    video_id = st.text_input("Enter YouTube Video ID:", "mLUTv35RigE")
+
+    if st.button("Get Transcript and Structure Data"):
+        if not video_id:
+            st.error("Please enter a YouTube Video ID.")
+            return
+
+        try:
+            structurer = TranscriptStructurer()
+            # Get the transcript
+            transcript_text = structurer.load_transcript(os.path.join("./backend","transcripts",video_id+".txt"))
+
+            if not transcript_text:
+                st.error(
+                    "Failed to retrieve transcript. Please check the Video ID and try again.")
+                return
+
+            # Structure the transcript
+            transcript_sections, structured_data = structurer.structure_transcript(
+                transcript_text)
+
+            # Display the transcript sections
+            st.subheader("Dialogue Extraction")
+            if transcript_sections:
+                for section, text in transcript_sections.items():
+                    st.write(f"**{section}:**")
+                    st.write(text)
+            else:
+                st.info("No transcript sections found.")
+
+            # Display the structured data
+            st.subheader("Structured Data View")
+            if structured_data:
+                st.json(structured_data)  # Use st.json for pretty printing
+            else:
+                st.info("No structured data found.")
+
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()

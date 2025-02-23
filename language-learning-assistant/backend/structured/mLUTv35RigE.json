@@ -2,75 +2,205 @@
     "Teil 1": [
         {
             "number": "Nummer 1",
-            "conversation": "Entschuldigung was kostet dieser Pullover jetzt da steht 30% billiger einen Moment bitte 1995 19,95 Euro ja Euro natürlich okay den nehme ich"
+            "conversation": "Entschuldigung was kostet dieser Pullover jetzt da steht 30% billiger einen Moment bitte 1995 19,95 Euro ja Euro natürlich ok den nehme ich",
+            "text": "Was kostet der Pullover jetzt?",
+            "optionA": "19,95 Euro",
+            "optionB": "30 Euro",
+            "optionC": "25 Euro",
+            "optionD": "15 Euro",
+            "correctOption": "A"
         },
         {
             "number": "Nummer 2",
-            "conversation": "ach entschuldigen sie bitte ja bitte haben Sie eine Uhr wie spät ist es bitte ja jetzt ist es gleich 5 Uhr was schon fünf vielen Dank wiedersehen"
+            "conversation": "ach entschuldigen sie bitte ja bitte haben Sie eine Uhr wie spät ist es bitte ja jetzt ist es gleich 5 Uhr was schon fünf vielen Dank wiedersehen",
+            "text": "Wie spät ist es, wenn die Person fragt nach der Uhrzeit?",
+            "optionA": "5 Uhr",
+            "optionB": "6 Uhr",
+            "optionC": "4 Uhr",
+            "optionD": "3 Uhr",
+            "correctOption": "A"
         },
         {
             "number": "Nummer 3",
-            "conversation": "was wünschen sie bitte ich hätte gern die Salatplatte und ein Entschuldigung die Salatplatte ist leider aus aber die Bratwurst kann ich Ihnen empfehlen ganz frisch heute nein danke ich esse kein Fleisch gibt es etwas ohne Fleisch ja nicht mehr viel Fisch oder Pommes"
+            "conversation": "was wünschen sie bitte ich hätte gern die Salatplatte und ein Entschuldigung die Salatplatte ist leider aus aber die Bratwurst kann ich Ihnen empfehlen ganz frisch heute nein danke ich esse kein Fleisch gibt es etwas ohne Fleisch ja nicht mehr viel Fisch oder Pommes",
+            "text": "Was bestellt die Person, nachdem sie erfährt, dass die Salatplatte ausverkauft ist?",
+            "optionA": "Bratwurst",
+            "optionB": "Fisch",
+            "optionC": "Pommes",
+            "optionD": "Kein Essen",
+            "correctOption": "D"
         },
         {
             "number": "Nummer 4",
-            "conversation": "haben sie Kinder Frau Heger ja einen Sohn und wie alt ist der 9 Jahre seit gestern zur Schule ja klar"
+            "conversation": "haben sie Kinder ja einen Sohn und wie alt ist der 9 Jahre seit gestern zur Schule ja klar schon in die dritte Klasse",
+            "text": "Wie alt ist der Sohn der Person?",
+            "optionA": "8 Jahre",
+            "optionB": "9 Jahre",
+            "optionC": "10 Jahre",
+            "optionD": "11 Jahre",
+            "correctOption": "B"
         },
         {
             "number": "Nummer 5",
-            "conversation": "ach entschuldigen sie wie komme ich denn hier in den zweiten Stock die Rolltreppe da vorne ist kaputt da gehen Sie hier rechts um die Ecke und nehmen den Aufzug um die Ecke rechts danke"
+            "conversation": "ach entschuldigen sie wie komme ich denn hier in den zweiten Stock die Rolltreppe da vorne ist kaputt da gehen Sie hier rechts um die Ecke und nehmen den Aufzug um die Ecke rechts danke",
+            "text": "Wie kommt man in den zweiten Stock, nachdem man erfährt, dass die Rolltreppe kaputt ist?",
+            "optionA": "Links um die Ecke und den Aufzug nehmen",
+            "optionB": "Rechts um die Ecke und den Aufzug nehmen",
+            "optionC": "Geradeaus und den Aufzug nehmen",
+            "optionD": "Rechts um die Ecke und die Treppe nehmen",
+            "correctOption": "B"
         },
         {
             "number": "Nummer 6",
-            "conversation": "guten Morgen Herr Albers so früh schon bei der Arbeit ja ich habe noch viel zu tun morgen fahre ich doch für drei Wochen weg ach ja das habe ich vergessen wohin fahren sie denn zu meinen Verwandten nach Polen na dann schöne Zeit"
+            "conversation": "guten Morgen Herr Albers so früh schon bei der Arbeit ja ich habe noch viel zu tun morgen fahre ich doch für drei Wochen weg ach ja das habe ich vergessen wohin fahren sie denn zu meinen Verwandten nach Polen na dann schöne Zeit",
+            "text": "Wohin fährt Herr Albers in den nächsten drei Wochen?",
+            "optionA": "Nach Frankreich",
+            "optionB": "Nach Italien",
+            "optionC": "Nach Polen",
+            "optionD": "Nach Spanien",
+            "correctOption": "C"
+        },
+        {
+            "number": "Nummer 7",
+            "conversation": "erstklassiger italienischer Weißwein für 12,78 € die Flasche oder exklusive argentinischer Rotwein für 9,68 € besuchen Sie uns im dritten Stock frohe Weihnachten",
+            "text": "Was kostet der italienische Weißwein?",
+            "optionA": "10,78 €",
+            "optionB": "11,78 €",
+            "optionC": "12,78 €",
+            "optionD": "13,78 €",
+            "correctOption": "C"
+        },
+        {
+            "number": "Nummer 8",
+            "conversation": "Liebe Frage ist die wir sind kurz vor Würzburg sicherlich haben Sie schon Hunger an der nächsten Raststätte halten wir für eine Stunde wir treffen uns wieder um halb eins am Bus aber bitte pünktlich sein",
+            "text": "Wann treffen sich die Leute am Bus wieder?",
+            "optionA": "Um 12 Uhr",
+            "optionB": "Um 12:30 Uhr",
+            "optionC": "Um 1 Uhr",
+            "optionD": "Um 1:30 Uhr",
+            "correctOption": "B"
+        },
+        {
+            "number": "Nummer 9",
+            "conversation": "Liebe Fahrgäste bitte beachten Sie das ist ein außerplanmäßiger halt bitte hier nicht aussteigen in ein paar Minuten erreichen wir den Bahnhof von Bad Godesberg",
+            "text": "Wo erreichen die Fahrgäste den nächsten Halt?",
+            "optionA": "Bahnhof von Bad Godesberg",
+            "optionB": "Bahnhof von Würzburg",
+            "optionC": "Bahnhof von Köln",
+            "optionD": "Bahnhof von Bonn",
+            "correctOption": "A"
+        },
+        {
+            "number": "Nummer 10",
+            "conversation": "Herr Stefan Jander gebucht auf dem Flug LH 737 nach Warschau wird zum Schalter F7 gebeten der Flug wird in ein paar Minuten geschlossen Herr Janda gebucht nach Warschau bitte nach F7",
+            "text": "Wohin wird Herr Janda auf dem Flug gebeten zu gehen?",
+            "optionA": "Schalter F5",
+            "optionB": "Schalter F6",
+            "optionC": "Schalter F7",
+            "optionD": "Schalter F8",
+            "correctOption": "C"
         }
     ],
     "Teil 2": [
         {
+            "number": "Nummer 7",
+            "conversation": "erstklassiger italienischer Weißwein für 12,78 € die Flasche oder exklusiver argentinischer Rotwein für 9,68 € besuchen Sie uns im dritten Stock frohe Weihnachten",
+            "text": "Es gibt einen erstklassigen italienischen Weißwein für 12,78 € die Flasche oder einen exklusiven argentinischen Rotwein für 9,68 €.",
+            "answer": "True"
+        },
+        {
             "number": "Nummer 8",
-            "conversation": "Liebe Frage ist die wir sind kurz vor Würzburg sicherlich haben Sie schon Hunger an der nächsten Raststätte halten wir für eine Stunde wir treffen uns wieder um halb eins am Bus aber bitte pünktlich sein"
+            "conversation": "Liebe Frage ist die wir sind kurz vor Würzburg sicherlich haben Sie schon Hunger an der nächsten Raststätte halten wir für eine Stunde wir treffen uns wieder um halb eins am Bus aber bitte pünktlich sein",
+            "text": "Die Reisegruppe wird an der nächsten Raststätte eine Stunde anhalten und sich um halb eins am Bus treffen.",
+            "answer": "True"
         },
         {
             "number": "Nummer 9",
-            "conversation": "Liebe Fahrgäste bitte beachten Sie das ist ein außerplanmäßiger halt bitte hier nicht aussteigen in ein paar Minuten erreichen wir den Bahnhof von Bad Godesberg"
+            "conversation": "Liebe Fahrgäste bitte beachten Sie das ist ein außerplanmäßiger halt bitte hier nicht aussteigen in ein paar Minuten erreichen wir den Bahnhof von Bad Godesberg",
+            "text": "Es handelt sich um einen außerplanmäßigen Halt und die Fahrgäste sollen nicht aussteigen, in ein paar Minuten wird der Bahnhof von Bad Godesberg erreicht.",
+            "answer": "True"
         },
         {
             "number": "Nummer 10",
-            "conversation": "Herr Stefan Jander gebucht auf dem Flug LH 737 nach Warschau wird zum Schalter F7 gebeten der Flug wird in ein paar Minuten geschlossen Herr Janda gebucht nach Warschau bitte nach F7"
+            "conversation": "Herr Stefan Jander gebucht auf dem Flug LH 737 nach Warschau wird zum Schalter F7 gebeten der Flug wird in ein paar Minuten geschlossen Herr Janda gebucht nach Warschau bitte nach F7",
+            "text": "Herr Stefan Jander, der auf dem Flug LH 737 nach Warschau gebucht ist, wird zum Schalter F7 gebeten, da der Flug in ein paar Minuten geschlossen wird.",
+            "answer": "True"
         },
         {
             "number": "Nummer 12",
-            "conversation": "Hallo Jan hier ist Boris du ich bin noch im Zug du holst mich doch vom Bahnhof ab ich warte an der Information auf dich"
+            "conversation": "Hallo Jan hier ist Boris du ich bin noch im Zug du holst mich doch vom Bahnhof ab ich warte an der Information auf dich",
+            "text": "Boris ist noch im Zug und Jan soll ihn am Bahnhof abholen, Boris wartet an der Information auf ihn.",
+            "answer": "True"
         },
         {
             "number": "Nummer 13",
-            "conversation": "Mensch Jan du Penner hier noch mal Boris ich bin jetzt am Bahnhof und du wo bist du denn ich warte schon über 20 Minuten auf dich also 10 Minuten Zeit hast du noch bis zwei dann nehme ich einen Taxi"
+            "conversation": "Mensch Jan du Penner hier noch mal Boris ich bin jetzt am Bahnhof und du wo bist du denn ich warte schon über 20 Minuten auf dich also 10 Minuten Zeit hast du noch bis zwei dann nehme ich einen Taxi",
+            "text": "Boris ist bereits am Bahnhof und wartet seit über 20 Minuten auf Jan, er gibt ihm noch 10 Minuten Zeit, bevor er ein Taxi nimmt.",
+            "answer": "True"
         },
         {
             "number": "Nummer 14",
-            "conversation": "Guten Tag hierogala wir können am Samstag leider nicht zu ihnen kommen am Sonntag haben wir aber Zeit rufen Sie uns doch bitte zurück ob ihnen das passt danke"
+            "conversation": "Guten Tag hierogala wir können am Samstag leider nicht zu ihnen kommen am Sonntag haben wir aber Zeit rufen Sie uns doch bitte zurück ob ihnen das passt danke",
+            "text": "Hierogala kann am Samstag leider nicht zu den Leuten kommen, am Sonntag haben sie aber Zeit und bitten sie, zurückzurufen, um zu klären, ob das passt.",
+            "answer": "True"
         },
         {
             "number": "Nummer 15",
-            "conversation": "Hallo Alex Walter hier kannst du schnell mal rüberkommen mein Computer hat einen Fehler ich kann nichts drucken melde dich doch bitte gleich wenn du nach Hause kommst"
+            "conversation": "Hallo Alex Walter hier kannst du schnell mal rüberkommen mein Computer hat einen Fehler ich kann nichts drucken melde dich doch bitte gleich wenn du nach Hause kommst",
+            "text": "Alex Walter wird gebeten, schnell vorbeizukommen, da der Computer einen Fehler hat und nichts drucken kann.",
+            "answer": "True"
         }
     ],
     "Teil 3": [
         {
+            "number": "Nummer 11",
+            "conversation": "telefonansagedienste der Deutschen Telekom die Rufnummer des Teilnehmers hat sich geändert bitte rufen Sie die Telefonauskunft an unter 11.833",
+            "text": "Was sollten Sie tun, wenn sich die Rufnummer des Teilnehmers geändert hat?",
+            "optionA": "Sie sollten die Telefonauskunft unter 11.833 anrufen.",
+            "optionB": "Sie sollten die neue Rufnummer des Teilnehmers suchen.",
+            "optionC": "Sie sollten den Teilnehmer auf seiner alten Rufnummer anrufen.",
+            "optionD": "Sie sollten die Telefonauskunft unter 11833 anrufen.",
+            "correctOption": "A"
+        },
+        {
             "number": "Nummer 12",
-            "conversation": "hallo Jan hier ist Boris du ich bin noch im Zug du holst mich doch vom Bahnhof ab ich warte an der Information auf dich"
+            "conversation": "hallo Jan hier ist Boris du ich bin noch im Zug du holst mich doch vom Bahnhof ab ich warte an der Information auf dich",
+            "text": "Wo wartet Boris auf Jan?",
+            "optionA": "An der Information.",
+            "optionB": "Am Bahnsteig.",
+            "optionC": "Im Zug.",
+            "optionD": "Im Café.",
+            "correctOption": "A"
         },
         {
             "number": "Nummer 13",
-            "conversation": "Mensch Jan du Penner hier noch mal Boris ich bin jetzt am Bahnhof und du wo bist du denn ich warte schon über 20 Minuten auf dich also 10 Minuten Zeit hast du noch bis zwei dann nehme ich einen Taxi"
+            "conversation": "Mensch Jan du Penner hier noch mal Boris ich bin jetzt am Bahnhof und du wo bist du denn ich warte schon über 20 Minuten auf dich also 10 Minuten Zeit hast du noch bis zwei dann nehme ich einen Taxi",
+            "text": "Wie lange wartet Boris bereits auf Jan?",
+            "optionA": "Über 20 Minuten.",
+            "optionB": "10 Minuten.",
+            "optionC": "5 Minuten.",
+            "optionD": "30 Minuten.",
+            "correctOption": "A"
         },
         {
             "number": "Nummer 14",
-            "conversation": "guten Tag hierogala wir können am Samstag leider nicht zu ihnen kommen am Sonntag haben wir aber Zeit rufen Sie uns doch bitte zurück ob ihnen das passt danke"
+            "conversation": "guten Tag hierogala wir können am Samstag leider nicht zu ihnen kommen am Sonntag haben wir aber Zeit rufen Sie uns doch bitte zurück ob ihnen das passt danke",
+            "text": "Was sollten Sie tun, wenn hierogala am Samstag nicht kommen kann?",
+            "optionA": "Sie sollten sie am Sonntag anrufen.",
+            "optionB": "Sie sollten sie am Montag anrufen.",
+            "optionC": "Sie sollten sie am Freitag anrufen.",
+            "optionD": "Sie sollten sie am Samstag anrufen.",
+            "correctOption": "A"
         },
         {
             "number": "Nummer 15",
-            "conversation": "hallo Alex Walter hier kannst du schnell mal rüberkommen mein Computer hat einen Fehler ich kann nichts drucken melde dich doch bitte gleich wenn du nach Hause kommst"
+            "conversation": "hallo Alex Walter hier kannst du schnell mal rüberkommen mein Computer hat einen Fehler ich kann nichts drucken melde dich doch bitte gleich wenn du nach Hause kommst",
+            "text": "Was braucht Alex von Walter?",
+            "optionA": "Hilfe bei seinem Computer.",
+            "optionB": "Einen neuen Computer.",
+            "optionC": "Druckerpapier.",
+            "optionD": "Hilfe bei der Installation einer Software.",
+            "correctOption": "A"
         }
     ]
 }
