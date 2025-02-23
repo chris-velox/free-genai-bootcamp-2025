@@ -1,0 +1,76 @@
+{
+    "Teil 1": [
+        {
+            "number": "Nummer 1",
+            "conversation": "Entschuldigung was kostet dieser Pullover jetzt da steht 30% billiger einen Moment bitte 1995 19,95 Euro ja Euro natürlich okay den nehme ich"
+        },
+        {
+            "number": "Nummer 2",
+            "conversation": "ach entschuldigen sie bitte ja bitte haben Sie eine Uhr wie spät ist es bitte ja jetzt ist es gleich 5 Uhr was schon fünf vielen Dank wiedersehen"
+        },
+        {
+            "number": "Nummer 3",
+            "conversation": "was wünschen sie bitte ich hätte gern die Salatplatte und ein Entschuldigung die Salatplatte ist leider aus aber die Bratwurst kann ich Ihnen empfehlen ganz frisch heute nein danke ich esse kein Fleisch gibt es etwas ohne Fleisch ja nicht mehr viel Fisch oder Pommes"
+        },
+        {
+            "number": "Nummer 4",
+            "conversation": "haben sie Kinder Frau Heger ja einen Sohn und wie alt ist der 9 Jahre seit gestern zur Schule ja klar"
+        },
+        {
+            "number": "Nummer 5",
+            "conversation": "ach entschuldigen sie wie komme ich denn hier in den zweiten Stock die Rolltreppe da vorne ist kaputt da gehen Sie hier rechts um die Ecke und nehmen den Aufzug um die Ecke rechts danke"
+        },
+        {
+            "number": "Nummer 6",
+            "conversation": "guten Morgen Herr Albers so früh schon bei der Arbeit ja ich habe noch viel zu tun morgen fahre ich doch für drei Wochen weg ach ja das habe ich vergessen wohin fahren sie denn zu meinen Verwandten nach Polen na dann schöne Zeit"
+        }
+    ],
+    "Teil 2": [
+        {
+            "number": "Nummer 8",
+            "conversation": "Liebe Frage ist die wir sind kurz vor Würzburg sicherlich haben Sie schon Hunger an der nächsten Raststätte halten wir für eine Stunde wir treffen uns wieder um halb eins am Bus aber bitte pünktlich sein"
+        },
+        {
+            "number": "Nummer 9",
+            "conversation": "Liebe Fahrgäste bitte beachten Sie das ist ein außerplanmäßiger halt bitte hier nicht aussteigen in ein paar Minuten erreichen wir den Bahnhof von Bad Godesberg"
+        },
+        {
+            "number": "Nummer 10",
+            "conversation": "Herr Stefan Jander gebucht auf dem Flug LH 737 nach Warschau wird zum Schalter F7 gebeten der Flug wird in ein paar Minuten geschlossen Herr Janda gebucht nach Warschau bitte nach F7"
+        },
+        {
+            "number": "Nummer 12",
+            "conversation": "Hallo Jan hier ist Boris du ich bin noch im Zug du holst mich doch vom Bahnhof ab ich warte an der Information auf dich"
+        },
+        {
+            "number": "Nummer 13",
+            "conversation": "Mensch Jan du Penner hier noch mal Boris ich bin jetzt am Bahnhof und du wo bist du denn ich warte schon über 20 Minuten auf dich also 10 Minuten Zeit hast du noch bis zwei dann nehme ich einen Taxi"
+        },
+        {
+            "number": "Nummer 14",
+            "conversation": "Guten Tag hierogala wir können am Samstag leider nicht zu ihnen kommen am Sonntag haben wir aber Zeit rufen Sie uns doch bitte zurück ob ihnen das passt danke"
+        },
+        {
+            "number": "Nummer 15",
+            "conversation": "Hallo Alex Walter hier kannst du schnell mal rüberkommen mein Computer hat einen Fehler ich kann nichts drucken melde dich doch bitte gleich wenn du nach Hause kommst"
+        }
+    ],
+    "Teil 3": [
+        {
+            "number": "Nummer 12",
+            "conversation": "hallo Jan hier ist Boris du ich bin noch im Zug du holst mich doch vom Bahnhof ab ich warte an der Information auf dich"
+        },
+        {
+            "number": "Nummer 13",
+            "conversation": "Mensch Jan du Penner hier noch mal Boris ich bin jetzt am Bahnhof und du wo bist du denn ich warte schon über 20 Minuten auf dich also 10 Minuten Zeit hast du noch bis zwei dann nehme ich einen Taxi"
+        },
+        {
+            "number": "Nummer 14",
+            "conversation": "guten Tag hierogala wir können am Samstag leider nicht zu ihnen kommen am Sonntag haben wir aber Zeit rufen Sie uns doch bitte zurück ob ihnen das passt danke"
+        },
+        {
+            "number": "Nummer 15",
+            "conversation": "hallo Alex Walter hier kannst du schnell mal rüberkommen mein Computer hat einen Fehler ich kann nichts drucken melde dich doch bitte gleich wenn du nach Hause kommst"
+        }
+    ]
+}
