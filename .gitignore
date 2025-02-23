@@ -1,3 +1,5 @@
 .DS_Store
 lang-portal/.env
 .env
+language-learning-assistant/qdrant/qdrant.db/collection/german_learning/storage.sqlite
+language-learning-assistant/qdrant/qdrant.db/.lock

@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.abspath(
 from backend.chat import GroqChat
 from backend.get_transcript import YouTubeTranscriptDownloader, main as get_transcript # Import the get_transcript function
 from backend.structured_data import TranscriptStructurer  # Import the TranscriptStructurer class
+from backend.vector_database import VectorDatabaseManager  # Import the VectorDatabaseManager class
 
 # Page config
 st.set_page_config(
@@ -341,7 +342,8 @@ def main():
         try:
             structurer = TranscriptStructurer()
             # Get the transcript
-            transcript_text = structurer.load_transcript(os.path.join("./backend","transcripts",video_id+".txt"))
+            transcript_filename = os.path.join("./backend","transcripts",video_id+".txt")
+            transcript_text = structurer.load_transcript(transcript_filename)
 
             if not transcript_text:
                 st.error(
@@ -350,7 +352,7 @@ def main():
 
             # Structure the transcript
             transcript_sections, structured_data = structurer.structure_transcript(
-                transcript_text)
+                transcript_text, transcript_filename)
 
             # Display the transcript sections
             st.subheader("Dialogue Extraction")
@@ -365,8 +367,35 @@ def main():
             st.subheader("Structured Data View")
             if structured_data:
                 st.json(structured_data)  # Use st.json for pretty printing
+                
+                # Initialize VectorDBManager
+                db_manager = VectorDatabaseManager()
+                
+                # Load data and add to VectorDB
+                #texts, metadatas = db_manager.load_structured_data(video_id, "backend/structured")
+                texts, metadatas = [], []
+                for section, questions in structured_data.items():
+                    for question in questions:
+                        text = question.get("text", "")
+                        texts.append(text)
+                        metadatas.append({
+                            "video_id": video_id,
+                            "section": section,
+                            **question  # type: ignore
+                        })
+                if texts and metadatas:
+                    ids = [f"{video_id}_{i}" for i in range(len(texts))]
+                    collection_name = "german_learning"
+                    db_manager.create_collection(collection_name)
+                    db_manager.add_data_to_collection(texts, metadatas, ids)
+                    st.success(f"Data for video ID '{video_id}' added to vector database.")
+                else:
+                    st.warning(f"No structured data found for video ID '{video_id}'.")
             else:
                 st.info("No structured data found.")
+
+            # Save the structured data
+            structurer.save_structured_data(structured_data, transcript_filename)
 
         except Exception as e:
             st.error(f"An error occurred: {e}")

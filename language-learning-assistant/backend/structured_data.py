@@ -164,7 +164,7 @@ class TranscriptStructurer:
             return None
 
     def structure_transcript(
-        self, transcript: str
+        self, transcript: str, transcript_filename: str
     ) -> Tuple[Dict[str, str], Dict[str, List[Dict[str, str]]]]:
         """Structure the transcript into three sections using separate prompts.
 
@@ -176,6 +176,49 @@ class TranscriptStructurer:
         transcript_sections = {}  # Store the original transcript sections
         structured_data = {}  # Store the structured data
 
+        # Check if structured data file exists
+        base_filename = os.path.splitext(
+            os.path.basename(transcript_filename))[0]
+        output_dir = "backend/structured"
+        output_filename = os.path.join(
+            output_dir, f"{base_filename}.json")
+        print("Trying to load: {}".format(output_filename))
+
+        if os.path.exists(output_filename):
+            print(
+                f"Structured data file found: {output_filename}. Loading data."
+            )
+            try:
+                with open(output_filename, "r", encoding="utf-8") as f:
+                    structured_data = json.load(f)
+                    # Create transcript sections from structured data keys
+                    for section_name in structured_data.keys():
+                        section_header = section_name
+                        start_index = transcript.find(section_header)
+                        if start_index != -1:
+                            # Extract the section text
+                            section_text = transcript[start_index:]
+
+                            # Find the end of the section
+                            next_section_num = int(section_name.split(" ")[1]) + 1
+                            next_section_header = f"Teil {next_section_num}"
+                            end_index = section_text.find(next_section_header)
+                            if end_index != -1:
+                                section_text = section_text[:end_index]
+                            else:
+                                end_index = len(
+                                    section_text)  # if next section not found, take the rest of the transcript
+                                section_text = section_text[:end_index]
+
+                            transcript_sections[section_name] = section_text  # Store the original section
+                return transcript_sections, structured_data
+            except Exception as e:
+                print(
+                    f"Error loading structured data from file: {str(e)}")
+                structured_data = {}
+        else:
+            print("No structured data file found. Processing with Groq.")
+
         for section_num in range(1, 4):
             # Find the start of the section
             section_header = f"Teil {section_num}"
@@ -183,8 +226,21 @@ class TranscriptStructurer:
             if start_index != -1:
                 # Extract the section text
                 section_text = transcript[start_index:]
+
+                # Find the end of the section
+                next_section_num = section_num + 1
+                next_section_header = f"Teil {next_section_num}"
+                end_index = section_text.find(next_section_header)
+                if end_index != -1:
+                    section_text = section_text[:end_index]
+                else:
+                    end_index = len(
+                        section_text)  # if next section not found, take the rest of the transcript
+                    section_text = section_text[:end_index]
+
                 transcript_sections[f"Teil {section_num}"] = section_text  # Store the original section
 
+                # If the structured data file doesn't exist, invoke Bedrock
                 result = self._invoke_bedrock(
                     self.prompts[section_num], section_text)
                 if result:
@@ -316,7 +372,7 @@ if __name__ == "__main__":
     transcript = structurer.load_transcript(transcript_filename)
 
     if transcript:
-        transcript_sections, structured_data = structurer.structure_transcript(transcript)
+        transcript_sections, structured_data = structurer.structure_transcript(transcript, transcript_filename)
         # structurer.save_structured_data(
         #     structured_data, transcript_filename)
         print("Transcript Sections:")
