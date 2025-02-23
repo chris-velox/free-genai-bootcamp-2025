@@ -5,9 +5,9 @@ from collections import Counter
 import re
 
 
-#from backend.chat import BedrockChat
+#from backend.chat import GroqChat
 from backend.chat import GroqChat
-
+from backend.get_transcript import YouTubeTranscriptDownloader
 
 # Page config
 st.set_page_config(
@@ -31,7 +31,7 @@ def render_header():
     This tool demonstrates:
     - Base LLM Capabilities
     - RAG (Retrieval Augmented Generation)
-    - Amazon Bedrock Integration
+    - Groq Integration
     - Agent-based Learning Systems
     """)
 
@@ -77,7 +77,7 @@ def render_sidebar():
             
             "4. RAG Implementation": """
             **Current Focus:**
-            - Bedrock embeddings
+            - Groq embeddings
             - Vector storage
             - Context retrieval
             """,
@@ -199,6 +199,8 @@ def render_transcript_stage():
                     transcript_text = "\n".join([entry['text'] for entry in transcript])
                     st.session_state.transcript = transcript_text
                     st.success("Transcript downloaded successfully!")
+                    video_id = downloader.extract_video_id(url)
+                    downloader.save_transcript(transcript,video_id)
                 else:
                     st.error("No transcript found for this video.")
             except Exception as e:

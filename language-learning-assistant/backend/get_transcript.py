@@ -1,9 +1,11 @@
+import os
 from youtube_transcript_api import YouTubeTranscriptApi
 from typing import Optional, List, Dict
 
 
 class YouTubeTranscriptDownloader:
-    def __init__(self, languages: List[str] = ["ja", "en"]):
+    #def __init__(self, languages: List[str] = ["ja", "en"]):
+    def __init__(self, languages: List[str] = ["de", "en"]):
         self.languages = languages
 
     def extract_video_id(self, url: str) -> Optional[str]:
@@ -59,7 +61,11 @@ class YouTubeTranscriptDownloader:
         Returns:
             bool: True if successful, False otherwise
         """
-        filename = f"./transcripts/{filename}.txt"
+        # Ensure the transcripts directory exists
+        transcripts_dir = os.path.join(os.path.dirname(__file__), 'transcripts')
+        os.makedirs(transcripts_dir, exist_ok=True)
+        
+        filename = os.path.join(transcripts_dir, f"{filename}.txt")
         
         try:
             with open(filename, 'w', encoding='utf-8') as f:
@@ -76,7 +82,7 @@ def main(video_url, print_transcript=False):
     
     # Get transcript
     transcript = downloader.get_transcript(video_url)
-    
+    print(transcript)
     if transcript:
         # Save transcript
         video_id = downloader.extract_video_id(video_url)
@@ -94,6 +100,5 @@ def main(video_url, print_transcript=False):
         print("Failed to get transcript")
 
 if __name__ == "__main__":
-    video_id = "https://www.youtube.com/watch?v=sY7L5cfCWno&list=PLkGU7DnOLgRMl-h4NxxrGbK-UdZHIXzKQ"  # Extract from URL: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    video_id = "https://www.youtube.com/watch?v=mLUTv35RigE"  # Extract from URL: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     transcript = main(video_id, print_transcript=True)
-        
