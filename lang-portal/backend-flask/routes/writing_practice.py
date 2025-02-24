@@ -23,21 +23,30 @@ def load(app):
     @cross_origin()
     def get_random_kana():
         """Get a random kana-romaji pair based on the specified type"""
-        kana_type = request.args.get('type', 'hiragana').lower()
-        
-        if kana_type not in ['hiragana', 'katakana']:
-            return jsonify({'error': 'Invalid kana type'}), 400
+        try:
+            kana_type = request.args.get('type', 'hiragana').lower()
+            print(f"Received request for kana type: {kana_type}")  # Debug log
+            
+            if kana_type not in ['hiragana', 'katakana']:
+                print(f"Invalid kana type: {kana_type}")  # Debug log
+                return jsonify({'error': 'Invalid kana type'}), 400
 
-        kana_dict = get_kana_dict(kana_type)
-        
-        # Get a random kana-romaji pair
-        kana = random.choice(list(kana_dict.keys()))
-        romaji = kana_dict[kana]
-
-        return jsonify({
-            'kana': kana,
-            'romaji': romaji
-        })
+            kana_dict = get_kana_dict(kana_type)
+            print(f"Got kana dictionary with {len(kana_dict)} entries")  # Debug log
+            
+            # Get a random kana-romaji pair
+            kana = random.choice(list(kana_dict.keys()))
+            romaji = kana_dict[kana]
+            
+            print(f"Selected kana: {kana}, romaji: {romaji}")  # Debug log
+            
+            return jsonify({
+                'kana': kana,
+                'romaji': romaji
+            })
+        except Exception as e:
+            print(f"Error in get_random_kana: {str(e)}")  # Debug log
+            return jsonify({'error': str(e)}), 500
 
     @app.route('/writing-practice/verify-kana', methods=['POST'])
     @cross_origin()
@@ -141,4 +150,24 @@ def load(app):
             print("Error processing image:", str(e))
             import traceback
             traceback.print_exc()
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/writing-practice/verify-romaji', methods=['POST'])
+    @cross_origin()
+    def verify_romaji():
+        """Verify the romaji input for a given kana"""
+        try:
+            data = request.json
+            if not all(k in data for k in ['input', 'expectedRomaji']):
+                return jsonify({'error': 'Missing required fields'}), 400
+
+            user_input = data['input'].lower()
+            expected_romaji = data['expectedRomaji'].lower()
+
+            return jsonify({
+                'correct': user_input == expected_romaji
+            })
+
+        except Exception as e:
+            print("Error verifying romaji:", str(e))
             return jsonify({'error': str(e)}), 500 

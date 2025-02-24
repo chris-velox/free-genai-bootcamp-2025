@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import LearnKana from './LearnKana'
 import RomajiToKana from './RomajiToKana'
+import KanaToRomaji from './KanaToRomaji'
 
 type KanaType = 'Hiragana' | 'Katakana'
 type PracticeMode = 'learn' | 'practice' | 'test'
@@ -58,12 +59,7 @@ export default function WritingPractice() {
       <div className="mt-6 p-4 border rounded-lg">
         {mode === 'learn' && <LearnKana kanaType={kanaType} />}
         {mode === 'practice' && <RomajiToKana kanaType={kanaType} />}
-        {mode === 'test' && (
-          <div>
-            <h2 className="text-xl font-semibold">Test Mode</h2>
-            <p>Test mode coming soon...</p>
-          </div>
-        )}
+        {mode === 'test' && <KanaToRomaji kanaType={kanaType} />}
       </div>
     </div>
   )
