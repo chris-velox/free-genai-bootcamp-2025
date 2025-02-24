@@ -18,7 +18,7 @@ export default function StudyActivity({ activity }: ActivityProps) {
         <h3 className="text-xl font-semibold mb-2">{activity.title}</h3>
         <div className="flex justify-between">
           <Button asChild>
-            <Link to={`/study-activities/${activity.id}/launch`}>
+            <Link to={activity.launch_url}>
               Launch
             </Link>
           </Button>

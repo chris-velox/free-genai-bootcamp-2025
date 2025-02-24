@@ -9,6 +9,7 @@ import routes.study_sessions
 import routes.dashboard
 import routes.study_activities
 import routes.vocab_importer
+import routes.writing_practice
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -73,6 +74,7 @@ def create_app(test_config=None):
     routes.dashboard.load(app)
     routes.study_activities.load(app)
     routes.vocab_importer.load(app)
+    routes.writing_practice.load(app)
     
     return app
 

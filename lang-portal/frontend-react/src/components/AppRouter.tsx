@@ -12,6 +12,7 @@ import Sessions from '@/pages/Sessions'
 import StudySessionShow from '@/pages/StudySessionShow'
 import Settings from '@/pages/Settings'
 import VocabImporter from '@/components/VocabImporter'
+import WritingPractice from '@/components/WritingPractice/WritingPractice'
 
 export default function AppRouter() {
   return (
@@ -23,6 +24,7 @@ export default function AppRouter() {
           <Route path="/study-activities" element={<StudyActivities />} />
           <Route path="/study-activities/:id" element={<StudyActivityShow />} />
           <Route path="/study-activities/:id/launch" element={<StudyActivityLaunch />} />
+          <Route path="/study-activities/writing-practice" element={<WritingPractice />} />
           <Route path="/words" element={<Words />} />
           <Route path="/words/:id" element={<WordShow />} />
           <Route path="/groups" element={<Groups />} />
