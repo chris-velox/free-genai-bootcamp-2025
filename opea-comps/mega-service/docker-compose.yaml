@@ -1,0 +1,28 @@
+services:
+  ollama-service:
+    image: ollama/ollama
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    entrypoint: ["bash", "-c"]
+    command: ["ollama serve & sleep 10 && ollama run ${OLLAMA_MODEL} & wait"] 
+    environment:
+      no_proxy: ${no_proxy}
+      https_proxy: ${https_proxy}
+      OLLAMA_MODEL: gemma:2b
+      OLLAMA_DEBUG: true
+
+  mega-service:
+    image: chat:latest
+    container_name: mega-service
+    ports:
+      - "8888:8888"
+      
+volumes:
+  ollama:
+
+networks:
+  default:
+    driver: bridge
