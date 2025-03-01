@@ -1,4 +1,43 @@
 services:
+  redis-vector-db:
+    image: redis/redis-stack:7.2.0-v9
+    container_name: redis-vector-db
+    ports:
+      - "6379:6379"
+      - "8001:8001"
+  
+  tei-embedding-service:
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
+    container_name: tei-embedding-server
+    ports:
+      - "6006:80"
+    volumes:
+      - embedding-data:/data
+    shm_size: 1g
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+    command: --model-id ${EMBEDDING_MODEL_ID} --auto-truncate
+
+  dataprep-redis-service:
+    image: ${REGISTRY:-opea}/dataprep:${TAG:-latest}
+    container_name: dataprep-redis-server
+    depends_on:
+      - redis-vector-db
+      - tei-embedding-service
+    ports:
+      - "6007:5000"
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+      REDIS_URL: redis://redis-vector-db:6379
+      REDIS_HOST: redis-vector-db
+      INDEX_NAME: ${INDEX_NAME}
+      TEI_ENDPOINT: http://tei-embedding-service:80
+      HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
+
   ollama-service:
     image: ollama/ollama
     container_name: ollama
@@ -11,7 +50,7 @@ services:
     environment:
       no_proxy: ${no_proxy}
       https_proxy: ${https_proxy}
-      OLLAMA_MODEL: gemma:2b
+      OLLAMA_MODEL: ${OLLAMA_MODEL}
       OLLAMA_DEBUG: true
 
   mega-service:
@@ -19,10 +58,25 @@ services:
     container_name: mega-service
     ports:
       - "8888:8888"
-      
+
+  chat-ui-server:
+    image: chat-ui:${TAG:-latest}
+    # image: ${REGISTRY:-opea}/chatqna-ui:${TAG:-latest}
+    container_name: chat-ui-server
+    depends_on:
+      - mega-service
+    ports:
+      - "5173:5173"
+    environment:
+      - no_proxy=${no_proxy}
+      - https_proxy=${https_proxy}
+      - http_proxy=${http_proxy}
+    ipc: host
+    restart: always
+
 volumes:
   ollama:
-
+  embedding-data:
 networks:
   default:
     driver: bridge

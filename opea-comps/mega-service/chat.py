@@ -19,6 +19,10 @@ from langchain_core.prompts import PromptTemplate
 MEGA_SERVICE_PORT = int(os.getenv("MEGA_SERVICE_PORT", 8888))
 GUARDRAIL_SERVICE_HOST_IP = os.getenv("GUARDRAIL_SERVICE_HOST_IP", "0.0.0.0")
 GUARDRAIL_SERVICE_PORT = int(os.getenv("GUARDRAIL_SERVICE_PORT", 80))
+EMBEDDING_SERVER_HOST_IP = os.getenv("EMBEDDING_SERVER_HOST_IP", "0.0.0.0")
+EMBEDDING_SERVER_PORT = int(os.getenv("EMBEDDING_SERVER_PORT", 80))
+RETRIEVER_SERVICE_HOST_IP = os.getenv("RETRIEVER_SERVICE_HOST_IP", "0.0.0.0")
+RETRIEVER_SERVICE_PORT = int(os.getenv("RETRIEVER_SERVICE_PORT", 7000))
 LLM_SERVER_HOST_IP = os.getenv("LLM_SERVER_HOST_IP", "ollama-service")
 LLM_SERVER_PORT = int(os.getenv("LLM_SERVER_PORT", 11434))
 LLM_MODEL = os.getenv("LLM_MODEL", "gemma:2b")
@@ -182,6 +186,25 @@ class ChatService:
         self.endpoint = str(MegaServiceEndpoint.CHAT)
 
     def add_remote_service(self):
+
+#       embedding = MicroService(
+#           name="embedding",
+#           host=EMBEDDING_SERVER_HOST_IP,
+#           port=EMBEDDING_SERVER_PORT,
+#           endpoint="/embed",
+#           use_remote_service=True,
+#           service_type=ServiceType.EMBEDDING,
+#       )
+#
+#       retriever = MicroService(
+#           name="retriever",
+#           host=RETRIEVER_SERVICE_HOST_IP,
+#           port=RETRIEVER_SERVICE_PORT,
+#           endpoint="/v1/retrieval",
+#           use_remote_service=True,
+#           service_type=ServiceType.RETRIEVER,
+#       )
+
         llm = MicroService(
             name="llm",
             host=LLM_SERVER_HOST_IP,

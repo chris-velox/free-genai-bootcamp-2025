@@ -157,3 +157,16 @@ Build the docker image for chat.py
 
 `docker build -t chat:latest .`
 
+## Attempts to get the UI working
+
+I'm trying to get the UI working with the mega-service.
+
+I'm using the chat-ui-server container to try to get the UI working.
+
+I had to edit the .env file to change the VITE_BACKEND_SERVICE_ENDPOINT to http://mega-service:8888/v1/chat/completions and the UPLOAD_FILE_BASE_URL to http://dataprep-redis-service:6007/v1/dataprep/ingest, etc.
+
+I rebuilt the docker image for the chat-ui-server container with `docker build -f ui/Dockerfile-t chat-ui:latest .`
+
+The UI has a dependency on the dataprep-redis-service.
+
+UI submits requests to the mega-service. It doesn't look like the mega-service is actually doing anything with the requests.
