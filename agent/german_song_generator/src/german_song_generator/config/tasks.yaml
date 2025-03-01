@@ -1,0 +1,30 @@
+retrieve_lyrics:
+  description: >
+    Search for and retrieve the lyrics of the German song: {song_title}.
+    Include both the original German lyrics and any available metadata.
+  expected_output: Complete German lyrics of the specified song
+  agent: lyrics_retriever
+
+extract_vocabulary:
+  description: >
+    Analyze the provided German lyrics and extract key vocabulary words.
+    Include their meanings and usage context.
+  expected_output: >
+    A list of vocabulary words with their meanings and contextual usage
+  agent: vocabulary_analyst
+
+generate_song:
+  description: >
+    Create new German song lyrics using the provided vocabulary words.
+    The song should be creative while incorporating the specified vocabulary naturally.
+  expected_output: >
+    Original German song lyrics that incorporate the provided vocabulary
+  agent: song_generator
+
+translate_songs:
+  description: >
+    Translate both the original and newly generated German songs to English,
+    maintaining the artistic meaning and style.
+  expected_output: >
+    English translations of both songs with preserved artistic elements
+  agent: translator
