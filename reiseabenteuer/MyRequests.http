@@ -1,0 +1,62 @@
+###
+# Single activity
+
+POST http://localhost:8000/destinations
+Content-Type: application/json
+
+{
+    "activities": ["wandern"]
+}
+
+###
+# Multiple activities
+
+POST http://localhost:8000/destinations
+Content-Type: application/json
+
+{
+    "activities": ["wandern", "skifahren", "radfahren"]
+}
+
+###
+# Error case - too many activities
+
+POST http://localhost:8000/destinations
+Content-Type: application/json
+
+{
+    "activities": ["wandern", "skifahren", "radfahren", "schwimmen"]
+}
+
+###
+# Error case - no activities
+
+POST http://localhost:8000/destinations
+
+###
+# Common activities
+POST http://localhost:8000/destinations
+Content-Type: application/json
+
+{
+    "activities": ["besichtigung", "museum"]
+}
+
+###
+# Nature activities
+
+POST http://localhost:8000/destinations
+Content-Type: application/json
+
+{
+    "activities": ["klettern", "wandern"]
+}
+
+###
+#Invalid JSON Format
+
+POST http://localhost:8000/destinations
+Content-Type: application/json
+
+{
+    "activities": ["wandern", "skifahren", "radfahren", "schwimmen"]

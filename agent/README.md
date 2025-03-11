@@ -24,7 +24,7 @@ uv pip install crewai crewai-tools
 
 This installed 80 new packages.
 
-2. Create a new CrewAI project
+1. Create a new CrewAI project
 
 ```bash
 crewai create crew german_song_generator
@@ -76,7 +76,7 @@ Crew german_song_generator created successfully!
 
 This created a new directory called `german_song_generator` with a `crew.py` file.
 
-3. Run the crew
+1. Run the crew
 
 ```bash
 crewai run crew.py
