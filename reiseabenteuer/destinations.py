@@ -76,41 +76,77 @@ def find_german_locations(text: str) -> List[dict]:
         "Sachsen-Anhalt", "Schleswig-Holstein", "Thüringen"
     ]
     
+    # Common German cities to help validate locations
+    known_cities = {
+        "Berlin", "Hamburg", "München", "Munich", "Köln", "Cologne", "Frankfurt",
+        "Stuttgart", "Düsseldorf", "Leipzig", "Dresden", "Hannover", "Nuremberg",
+        "Nürnberg", "Heidelberg", "Rothenburg", "Freiburg", "Würzburg", "Potsdam"
+    }
+    
+    # Words that indicate we're dealing with a location
+    location_indicators = [
+        "city", "town", "Stadt", "village", "Dorf", "visit", "besuchen",
+        "located in", "situated in", "liegt in", "befindet sich in"
+    ]
+    
     # Pattern to find locations followed by state references
     location_patterns = [
-        r'(?:in|at|near|visit)\s+([A-Z][a-zäöüß\s-]+)(?:\s+in\s+([A-Z][a-zäöüß\s-]+))?',
-        r'([A-Z][a-zäöüß\s-]+)(?:\s*,\s*([A-Z][a-zäöüß\s-]+))?'
+        r'(?:in|at|near|visit|Stadt|Dorf)\s+([A-Z][a-zäöüß\s-]+)(?:\s+in\s+([A-Z][a-zäöüß\s-]+))?',
+        r'([A-Z][a-zäöüß\s-]+)(?:\s*,\s*([A-Z][a-zäöüß\s-]+))',
+        r'(?:Die|Der|Das)\s+([A-Z][a-zäöüß\s-]+)(?:\s+in\s+([A-Z][a-zäöüß\s-]+))?'
     ]
     
     locations = []
     seen_locations = set()
     
-    for pattern in location_patterns:
-        matches = re.finditer(pattern, text)
-        for match in matches:
-            location = match.group(1).strip()
-            state = match.group(2).strip() if match.group(2) else "Unknown"
+    # Split text into sentences for better context
+    sentences = text.split('.')
+    
+    for sentence in sentences:
+        # Skip if sentence doesn't contain any location indicators
+        if not any(indicator in sentence.lower() for indicator in location_indicators):
+            continue
             
-            # Skip if we've seen this location or if it's actually a state name
-            if (location.lower() in seen_locations or 
-                location in german_states or 
-                len(location) < 3):
-                continue
-            
-            # Verify state is actually a German state, otherwise try to find it in context
-            if state not in german_states:
-                for german_state in german_states:
-                    if german_state in text[:text.find(location) + 100]:
-                        state = german_state
-                        break
-                else:
-                    state = "Unknown"
-            
-            locations.append({
-                "destination_name": location,
-                "state": state
-            })
-            seen_locations.add(location.lower())
+        for pattern in location_patterns:
+            matches = re.finditer(pattern, sentence)
+            for match in matches:
+                location = match.group(1).strip()
+                state = match.group(2).strip() if match.group(2) else "Unknown"
+                
+                # Skip if we've seen this location or if it's actually a state name
+                if (location.lower() in seen_locations or 
+                    location in german_states or 
+                    len(location) < 3):
+                    continue
+                
+                # Skip common words that might be mistaken for locations
+                if any(word in location.lower() for word in ["website", "article", "guide", "blog", "tips", "best"]):
+                    continue
+                
+                # Validate that it's likely a real location
+                is_valid = False
+                if location in known_cities:
+                    is_valid = True
+                elif any(indicator in sentence.lower() for indicator in location_indicators):
+                    is_valid = True
+                
+                if not is_valid:
+                    continue
+                
+                # Verify state is actually a German state, otherwise try to find it in context
+                if state not in german_states:
+                    for german_state in german_states:
+                        if german_state in text[:text.find(location) + 200]:
+                            state = german_state
+                            break
+                    else:
+                        state = "Unknown"
+                
+                locations.append({
+                    "destination_name": location,
+                    "state": state
+                })
+                seen_locations.add(location.lower())
     
     return locations
 
@@ -124,38 +160,60 @@ def search_destinations(activities: List[str]) -> List[dict]:
         search_queries = [
             f"{', '.join(activities)} top destinations Germany",
             f"best places in Germany for {', '.join(activities)}",
-            f"where to {activities[0]} in Germany"
+            f"where to {activities[0]} in Germany",
+            f"recommended German cities for {', '.join(activities)}",
+            f"popular {activities[0]} locations Germany",
+            f"Germany tourism {', '.join(activities)}",
+            # Add more specific queries
+            "top tourist cities Germany",
+            "most visited places Germany",
+            "best German cities to visit",
+            "popular German tourist destinations"
         ]
         
         for search_query in search_queries:
+            if len(destinations) >= 5:
+                break
+                
             try:
                 results = list(ddgs.text(
                     search_query,
                     region='de-de',
-                    max_results=3
+                    max_results=10  # Increased to get more potential results
                 ))
                 
                 if not results:
                     continue
                 
                 for result in results:
-                    url = result.get('link') or result.get('url')
-                    if not url:
-                        continue
-                    
-                    article_text = extract_text_from_url(url)
+                    if len(destinations) >= 5:
+                        break
+                        
+                    # Get text from both URL and body
+                    article_text = extract_text_from_url(result.get('link', ''))
                     if not article_text:
                         article_text = result.get('body', '')
-                    
                     if not article_text:
                         continue
+                    
+                    # Add the title to improve location finding
+                    if result.get('title'):
+                        article_text = result['title'] + ". " + article_text
                     
                     locations = find_german_locations(article_text)
                     
                     for location in locations:
+                        if len(destinations) >= 5:
+                            break
+                            
                         if location['destination_name'].lower() in seen_places:
                             continue
                         
+                        # Skip very short location names or likely false positives
+                        if len(location['destination_name']) < 3 or location['destination_name'] in ['Germany', 'Deutschland']:
+                            continue
+                        
+                        # Get description
                         location_mention = article_text.find(location['destination_name'])
                         if location_mention != -1:
                             start = max(0, location_mention - 100)
@@ -181,18 +239,34 @@ def search_destinations(activities: List[str]) -> List[dict]:
                         
                         destinations.append(destination)
                         seen_places.add(location['destination_name'].lower())
-                        
-                        if len(destinations) >= 5:
-                            return destinations
                 
-                if destinations:
-                    return destinations
-                    
             except Exception as e:
                 print(f"Error during search with query '{search_query}': {str(e)}")
                 continue
     
-    return destinations
+    # If we still don't have enough destinations, add some popular German cities
+    default_cities = [
+        {"destination_name": "Berlin", "state": "Berlin"},
+        {"destination_name": "Munich", "state": "Bayern"},
+        {"destination_name": "Hamburg", "state": "Hamburg"},
+        {"destination_name": "Frankfurt", "state": "Hessen"},
+        {"destination_name": "Cologne", "state": "Nordrhein-Westfalen"}
+    ]
+    
+    for city in default_cities:
+        if len(destinations) >= 5:
+            break
+        if city['destination_name'].lower() not in seen_places:
+            description = f"Eine bedeutende deutsche Stadt, die sich gut für {', '.join(activities)} eignet."
+            destinations.append({
+                "destination_name": city['destination_name'],
+                "state": city['state'],
+                "activities": activities,
+                "description": description
+            })
+            seen_places.add(city['destination_name'].lower())
+    
+    return destinations[:5]  # Ensure we return exactly 5 destinations
 
 def store_destinations_in_qdrant(destinations: List[Dict[str, Any]]) -> None:
     """Store destinations in Qdrant with their embeddings"""

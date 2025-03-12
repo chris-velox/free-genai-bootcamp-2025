@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 import uvicorn
@@ -12,6 +13,15 @@ from destinations import (
 app = FastAPI(
     title="Deutsche Reiseempfehlungen API",
     description="API für Reiseziele in Deutschland basierend auf Aktivitäten"
+)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # React app's URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 class ActivityRequest(BaseModel):
