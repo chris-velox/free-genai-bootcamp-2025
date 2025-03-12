@@ -63,4 +63,15 @@ uv pip install trafilatura beautifulsoup4
 
 [beautifulsoup4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/) is a library that allows you to parse HTML.
 
+## Add vector database using qdrant
+
+```sh
+uv pip install pydantic qdrant_client sentence_transformers numpy
+```
+
+[qdrant](https://qdrant.tech/) is a vector database.
+
+[sentence_transformers](https://www.sbert.net/) is a library that allows you to transform text into vectors.
+
+[numpy](https://numpy.org/) is a library that allows you to work with arrays.
 
