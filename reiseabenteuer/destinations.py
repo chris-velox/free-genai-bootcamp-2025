@@ -8,14 +8,18 @@ from qdrant_client import QdrantClient
 from qdrant_client.http import models
 from sentence_transformers import SentenceTransformer
 import os
+from fastapi import APIRouter, HTTPException
 
 # Define path for local storage
-QDRANT_PATH = "./qdrant_storage"
+QDRANT_PATH = "./qdrant_storage/destinations"
 
 # Initialize Qdrant client and sentence transformer
 qdrant_client = None
 encoder = None
 COLLECTION_NAME = "destinations"
+
+# Add these models and router
+router = APIRouter()
 
 class Destination(BaseModel):
     destination_name: str
@@ -23,7 +27,15 @@ class Destination(BaseModel):
     activities: List[str]
     description: str
 
+class ActivityRequest(BaseModel):
+    activities: List[str]
+
+class SimilarDestinationRequest(BaseModel):
+    description: str
+    limit: int = 5
+
 def init_services():
+    """Initialize Qdrant client and create collection"""
     global qdrant_client, encoder
     try:
         os.makedirs(QDRANT_PATH, exist_ok=True)
@@ -410,4 +422,63 @@ def find_similar_destinations(description: str, limit: int = 5) -> List[Dict[str
         limit=limit
     )
     
-    return [hit.payload for hit in search_result] 
+    return [hit.payload for hit in search_result]
+
+# Add these endpoints using the router
+@router.post("", response_model=List[Destination])
+async def get_destinations(request: ActivityRequest):
+    if len(request.activities) > 3:
+        raise HTTPException(
+            status_code=400,
+            detail="Maximum 3 activities allowed"
+        )
+    
+    if len(request.activities) == 0:
+        raise HTTPException(
+            status_code=400,
+            detail="At least one activity must be specified"
+        )
+    
+    requested_activities = [activity.lower() for activity in request.activities]
+    
+    try:
+        final_results = get_destinations_for_activities(requested_activities)
+        
+        if not final_results:
+            raise HTTPException(
+                status_code=404,
+                detail="No destinations found for the specified activities"
+            )
+        
+        return final_results
+    
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error searching for destinations: {str(e)}"
+        )
+
+@router.post("/similar", response_model=List[Destination])
+async def similar_destinations(request: SimilarDestinationRequest):
+    if not vector_storage_available:
+        raise HTTPException(
+            status_code=503,
+            detail="Vector search functionality is currently unavailable"
+        )
+        
+    try:
+        results = find_similar_destinations(request.description, request.limit)
+        
+        if not results:
+            raise HTTPException(
+                status_code=404,
+                detail="No similar destinations found"
+            )
+            
+        return results
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error searching similar destinations: {str(e)}"
+        ) 

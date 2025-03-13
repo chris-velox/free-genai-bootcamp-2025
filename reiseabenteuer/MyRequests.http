@@ -60,3 +60,50 @@ Content-Type: application/json
 
 {
     "activities": ["wandern", "skifahren", "radfahren", "schwimmen"]
+}
+
+###
+# Get A1 nouns
+GET http://localhost:8000/vocabulary/words?cefr_level=A1&part_of_speech=noun
+
+###
+# Get A2 verbs
+GET http://localhost:8000/vocabulary/words?cefr_level=A2&part_of_speech=verb
+
+###
+# Get B1 adjectives
+GET http://localhost:8000/vocabulary/words?cefr_level=B1&part_of_speech=adjective
+
+###
+# Get A2 adverbs
+GET http://localhost:8000/vocabulary/words?cefr_level=A2&part_of_speech=adverb
+
+###
+# Error case - Invalid CEFR level
+GET http://localhost:8000/vocabulary/words?cefr_level=D1&part_of_speech=noun
+
+###
+# Error case - Invalid part of speech
+GET http://localhost:8000/vocabulary/words?cefr_level=A1&part_of_speech=pronoun
+
+###
+# Error case - Missing parameters
+GET http://localhost:8000/vocabulary/words
+
+###
+# Error case - Missing part of speech
+GET http://localhost:8000/vocabulary/words?cefr_level=A1
+
+###
+# Error case - Missing CEFR level
+GET http://localhost:8000/vocabulary/words?part_of_speech=noun
+
+###
+# Similar destinations
+POST http://localhost:8000/destinations/similar
+Content-Type: application/json
+
+{
+    "description": "mountain hiking destination",
+    "limit": 5
+}
