@@ -6,6 +6,7 @@ from qdrant_client import QdrantClient
 from qdrant_client.http import models
 from sentence_transformers import SentenceTransformer
 import os
+import random
 
 # Update the Qdrant initialization constants
 QDRANT_PATH = "./qdrant_storage/vocabulary"  # Changed path
@@ -73,7 +74,7 @@ async def get_vocabulary_words(
     part_of_speech: str,
     limit: int = 50
 ):
-    """Get vocabulary words from the vector database"""
+    """Get random vocabulary words from the vector database"""
     if not qdrant_client or not model:
         raise HTTPException(
             status_code=503,
@@ -93,10 +94,6 @@ async def get_vocabulary_words(
         raise HTTPException(status_code=400, detail="Invalid part of speech")
 
     try:
-        # Create search vector from request parameters
-        search_text = f"German {part_of_speech} {cefr_level}"
-        search_vector = model.encode(search_text)
-        
         # Create filter using Qdrant models
         search_filter = models.Filter(
             must=[
@@ -111,23 +108,32 @@ async def get_vocabulary_words(
             ]
         )
         
-        # Search the vector database with proper filter model
-        results = qdrant_client.search(
-            collection_name=collection_name,
-            query_vector=search_vector.tolist(),
-            query_filter=search_filter,
-            limit=limit
-        )
+        # Get all matching words first
+        all_results = []
+        offset = None
+        while True:
+            batch, offset = qdrant_client.scroll(
+                collection_name=collection_name,
+                scroll_filter=search_filter,
+                limit=100,  # Fetch in batches of 100
+                offset=offset
+            )
+            all_results.extend(batch)
+            if not offset:  # No more results
+                break
         
-        if not results:
+        if not all_results:
             raise HTTPException(
                 status_code=404,
                 detail=f"No vocabulary words found for {part_of_speech}s at {cefr_level} level"
             )
 
+        # Randomly select the requested number of words
+        selected_results = random.sample(all_results, min(limit, len(all_results)))
+
         # Convert results to VocabularyWord objects
         vocabulary_words = []
-        for hit in results:
+        for hit in selected_results:
             word_data = hit.payload
             
             # Create base word object with all fields

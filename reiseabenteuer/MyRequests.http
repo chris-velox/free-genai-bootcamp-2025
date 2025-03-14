@@ -67,12 +67,20 @@ Content-Type: application/json
 GET http://localhost:8000/vocabulary/words?cefr_level=A1&part_of_speech=noun
 
 ###
+# Get single A1 noun
+GET http://localhost:8000/vocabulary/words?cefr_level=A1&part_of_speech=noun&limit=1
+
+###
 # Get A2 verbs
 GET http://localhost:8000/vocabulary/words?cefr_level=A2&part_of_speech=verb
 
 ###
 # Get B1 adjectives
 GET http://localhost:8000/vocabulary/words?cefr_level=B1&part_of_speech=adjective
+
+###
+# Get single B1 adjective
+GET http://localhost:8000/vocabulary/words?cefr_level=B1&part_of_speech=adjective&limit=1
 
 ###
 # Get A2 adverbs
