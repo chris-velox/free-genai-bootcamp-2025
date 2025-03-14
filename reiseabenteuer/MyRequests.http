@@ -107,3 +107,14 @@ Content-Type: application/json
     "description": "mountain hiking destination",
     "limit": 5
 }
+
+###
+# Test ollama
+
+POST http://localhost:11434/api/generate
+Content-Type: application/json
+
+{
+    "model": "gemma2:2b",
+    "prompt": "Translate the German word 'Hund' to English. Provide only the English translation, no explanaion."
+}

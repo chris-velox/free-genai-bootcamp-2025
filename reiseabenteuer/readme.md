@@ -75,3 +75,27 @@ uv pip install pydantic qdrant_client sentence_transformers numpy
 
 [numpy](https://numpy.org/) is a library that allows you to work with arrays.
 
+## To get things working
+
+I'm using Gemma2:2b on Ollama Server to perform vocabulary translation.
+
+```sh
+ollama serve
+ollama run gemma2:2b
+```
+
+I had to separate the vector databases for destinations and vocabulary because I was running into issues with using local Qdrant storage. A container or cloud solution would be a better approach. I also got a warning for Qdrant having over 20,000 points (23,735) in the vocabulary database. In total, the vocabulary database for the flashcard game has 24,119 words from CEFR levels A1, A2, B1, B2, and C1.
+
+Vocabulary word list from https://github.com/Nordsword3m/German-Words.
+
+## Next steps
+
+- Add a frontend
+- Add a container or cloud solution for Qdrant
+- Add a frontend
+
+## Test Stable Diffusion locally
+
+```sh
+uv pip install diffusers transformers torch
+```

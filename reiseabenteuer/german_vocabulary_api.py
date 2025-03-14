@@ -26,15 +26,41 @@ except Exception as e:
 class VocabularyWord(BaseModel):
     german_word: str
     english_word: str
+    english_translations: List[str]
     part_of_speech: str
     cefr_level: str
-    gender: Optional[str] = None
     frequency: Optional[float] = None
-    # Optional verb-specific fields
+    
+    # Noun-specific fields
+    gender: Optional[str] = None
+    cases: Optional[dict] = None
+    no_article: Optional[bool] = None
+    singular_only: Optional[bool] = None
+    plural_only: Optional[bool] = None
+    
+    # Verb-specific fields
     separable: Optional[bool] = None
+    present: Optional[dict] = None
+    simple: Optional[dict] = None
     perfect: Optional[str] = None
+    conjunctive1: Optional[dict] = None
+    conjunctive2: Optional[dict] = None
+    imperative: Optional[dict] = None
     gerund: Optional[str] = None
-    # Optional adjective-specific fields
+    zuinfinitive: Optional[str] = None
+    
+    # Adjective-specific fields
+    predicative_only: Optional[bool] = None
+    absolute: Optional[bool] = None
+    not_declinable: Optional[bool] = None
+    no_mixed: Optional[bool] = None
+    strong: Optional[dict] = None
+    weak: Optional[dict] = None
+    mixed: Optional[dict] = None
+    is_comparative: Optional[bool] = None
+    is_superlative: Optional[bool] = None
+    superlative_only: Optional[bool] = None
+    no_comparative: Optional[bool] = None
     comparative: Optional[str] = None
     superlative: Optional[str] = None
 
@@ -55,10 +81,10 @@ async def get_vocabulary_words(
         )
 
     # Validate input parameters
-    valid_cefr_levels = ['a1', 'a2', 'b1', 'b2', 'c1', 'c2']
+    valid_cefr_levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
     valid_parts_of_speech = ['noun', 'verb', 'adjective']
     
-    cefr_level = cefr_level.lower()
+    cefr_level = cefr_level.upper()
     part_of_speech = part_of_speech.lower()
     
     if cefr_level not in valid_cefr_levels:
@@ -104,26 +130,50 @@ async def get_vocabulary_words(
         for hit in results:
             word_data = hit.payload
             
-            # Create base word object
+            # Create base word object with all fields
             word = {
                 'german_word': word_data['german_word'],
                 'english_word': word_data['english_word'],
+                'english_translations': word_data.get('english_translations', []),
                 'part_of_speech': word_data['part_of_speech'],
                 'cefr_level': word_data['cefr_level'],
                 'frequency': word_data.get('frequency')
             }
             
-            # Add type-specific fields if they exist
+            # Add type-specific fields
             if word_data['part_of_speech'] == 'noun':
-                word['gender'] = word_data.get('gender')
+                word.update({
+                    'gender': word_data.get('gender'),
+                    'cases': word_data.get('cases'),
+                    'no_article': word_data.get('no_article'),
+                    'singular_only': word_data.get('singular_only'),
+                    'plural_only': word_data.get('plural_only')
+                })
             elif word_data['part_of_speech'] == 'verb':
                 word.update({
                     'separable': word_data.get('separable'),
+                    'present': word_data.get('present'),
+                    'simple': word_data.get('simple'),
                     'perfect': word_data.get('perfect'),
-                    'gerund': word_data.get('gerund')
+                    'conjunctive1': word_data.get('conjunctive1'),
+                    'conjunctive2': word_data.get('conjunctive2'),
+                    'imperative': word_data.get('imperative'),
+                    'gerund': word_data.get('gerund'),
+                    'zuinfinitive': word_data.get('zuinfinitive')
                 })
             elif word_data['part_of_speech'] == 'adjective':
                 word.update({
+                    'predicative_only': word_data.get('predicative_only'),
+                    'absolute': word_data.get('absolute'),
+                    'not_declinable': word_data.get('not_declinable'),
+                    'no_mixed': word_data.get('no_mixed'),
+                    'strong': word_data.get('strong'),
+                    'weak': word_data.get('weak'),
+                    'mixed': word_data.get('mixed'),
+                    'is_comparative': word_data.get('is_comparative'),
+                    'is_superlative': word_data.get('is_superlative'),
+                    'superlative_only': word_data.get('superlative_only'),
+                    'no_comparative': word_data.get('no_comparative'),
                     'comparative': word_data.get('comparative'),
                     'superlative': word_data.get('superlative')
                 })
