@@ -16,7 +16,7 @@ import {
   IconButton
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { ArrowBack, ArrowForward, Mic, Stop } from '@mui/icons-material';
+import { ArrowBack, ArrowForward, Mic, Stop, Refresh as RefreshIcon } from '@mui/icons-material';
 import { CircularProgress } from '@mui/material';
 
 interface FlashcardConfig {
@@ -65,6 +65,7 @@ interface FormattedWordState {
   text: string;
   associatedNoun?: VocabularyWord | null;
   pronunciationResult?: PronunciationResult;
+  imagePath?: string;
 }
 
 const defaultConfig: FlashcardConfig = {
@@ -142,18 +143,22 @@ const fetchRandomNoun = async (level: string): Promise<VocabularyWord | null> =>
   }
 };
 
-const formatWordForPronunciation = (
+const formatWordForDisplay = (
   word: VocabularyWord, 
-  noun: VocabularyWord | null = null
+  noun: VocabularyWord | null = null,
+  hideWord: boolean = false
 ): string => {
+  const getUnderscores = (word: string) => '_'.repeat(word.length);
+
   switch (word.part_of_speech) {
     case 'noun':
-      return `${getArticleForGender(word.gender || '')} ${word.german_word}`;
+      return `${getArticleForGender(word.gender || '')} ${hideWord ? getUnderscores(word.german_word) : word.german_word}`;
     case 'verb':
       const pronoun = getRandomPronoun();
-      return `${pronoun} ${word.present?.[pronoun as keyof typeof word.present] || word.german_word}`;
+      const verbForm = word.present?.[pronoun as keyof typeof word.present] || word.german_word;
+      return `${pronoun} ${hideWord ? getUnderscores(verbForm) : verbForm}`;
     case 'adjective': {
-      if (!noun) return word.german_word;
+      if (!noun) return hideWord ? getUnderscores(word.german_word) : word.german_word;
 
       const usePlural = getRandomBoolean();
       const article = usePlural ? 'Die' : getArticleForGender(noun.gender || '');
@@ -161,10 +166,10 @@ const formatWordForPronunciation = (
         ? noun.cases?.nominative?.plural || noun.german_word
         : noun.german_word;
 
-      return `${article} ${word.german_word} ${nounForm}`;
+      return `${article} ${hideWord ? getUnderscores(word.german_word) : word.german_word} ${nounForm}`;
     }
     default:
-      return word.german_word;
+      return hideWord ? getUnderscores(word.german_word) : word.german_word;
   }
 };
 
@@ -181,6 +186,9 @@ const Flashcards = () => {
   const [shouldRefreshNoun, setShouldRefreshNoun] = useState<boolean>(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
+  const [isRevealed, setIsRevealed] = useState(false);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [isTranslationVisible, setIsTranslationVisible] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
   const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
@@ -230,6 +238,8 @@ const Flashcards = () => {
       currentIndex: Math.max(0, prev.currentIndex - 1)
     }));
     setShouldRefreshNoun(prev => !prev);
+    setIsRevealed(false);
+    setIsTranslationVisible(false);
   };
 
   const handleNext = () => {
@@ -238,6 +248,16 @@ const Flashcards = () => {
       currentIndex: Math.min(prev.words.length - 1, prev.currentIndex + 1)
     }));
     setShouldRefreshNoun(prev => !prev);
+    setIsRevealed(false);
+    setIsTranslationVisible(false);
+  };
+
+  const handleReveal = () => {
+    setIsRevealed(prev => !prev);
+  };
+
+  const handleTranslationToggle = () => {
+    setIsTranslationVisible(prev => !prev);
   };
 
   const handleSubmit = async () => {
@@ -342,12 +362,10 @@ const Flashcards = () => {
   const checkPronunciation = async (audioBlob: Blob) => {
     setIsChecking(true);
     try {
-      // Convert blob to base64
       const base64Audio = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
         reader.onloadend = () => {
           if (typeof reader.result === 'string') {
-            // Extract the base64 part after the data URL prefix
             const base64Data = reader.result.split(',')[1];
             resolve(base64Data);
           } else {
@@ -358,6 +376,12 @@ const Flashcards = () => {
         reader.readAsDataURL(audioBlob);
       });
 
+      const fullPhrase = formatWordForDisplay(
+        flashcardState.words[flashcardState.currentIndex],
+        formattedWord.associatedNoun,
+        false
+      );
+
       const response = await fetch('http://localhost:8000/check_recording', {
         method: 'POST',
         headers: {
@@ -365,7 +389,7 @@ const Flashcards = () => {
         },
         body: JSON.stringify({
           audio_data: base64Audio,
-          expected_text: formattedWord.text
+          expected_text: fullPhrase
         }),
       });
 
@@ -397,27 +421,148 @@ const Flashcards = () => {
     }
   };
 
+  const handleRegenerateImage = async () => {
+    if (flashcardState.words.length === 0) return;
+
+    const currentWord = flashcardState.words[flashcardState.currentIndex];
+    setIsGeneratingImage(true);
+    // Clear the current image to show loading indicator
+    setFormattedWord(prev => ({
+      ...prev,
+      imagePath: undefined
+    }));
+    
+    try {
+      const response = await fetch('http://localhost:8000/images/generate_image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phrase: formatWordForDisplay(currentWord, formattedWord.associatedNoun, false),
+          cefr_level: config.level,
+          part_of_speech: currentWord.part_of_speech,
+          force_regenerate: true
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to regenerate image');
+      }
+
+      const data = await response.json();
+      const imagePath = data.image_path.startsWith('/') ? data.image_path : `/${data.image_path}`;
+      
+      setFormattedWord(prev => ({
+        ...prev,
+        imagePath: imagePath
+      }));
+    } catch (error) {
+      console.error('Error regenerating image:', error);
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
+
+  const formatEnglishTranslation = (
+    word: VocabularyWord,
+    noun: VocabularyWord | null = null
+  ): string => {
+    switch (word.part_of_speech) {
+      case 'noun':
+        return `the ${word.english_word}`;
+      case 'verb': {
+        const pronoun = getRandomPronoun();
+        const pronounMap: { [key: string]: string } = {
+          'ich': 'I',
+          'du': 'you',
+          'er': 'he',
+          'wir': 'we',
+          'ihr': 'you all'
+        };
+        // Special handling for 'sie' - randomly choose between 'she' and 'they'
+        if (pronoun === 'sie') {
+          return `${Math.random() < 0.5 ? 'she' : 'they'} ${word.english_word}`;
+        }
+        return `${pronounMap[pronoun]} ${word.english_word}`;
+      }
+      case 'adjective': {
+        if (!noun) return word.english_word;
+        return `the ${word.english_word} ${noun.english_word}`;
+      }
+      default:
+        return word.english_word;
+    }
+  };
+
   const isFormValid = config.level && config.partOfSpeech && config.cardCount > 0;
 
-  // Update the effect to handle noun fetching
+  // Update the effect to handle both pronunciation formatting and image generation
   useEffect(() => {
     const formatWord = async () => {
       if (flashcardState.words.length > 0) {
         const currentWord = flashcardState.words[flashcardState.currentIndex];
         
-        // For adjectives, fetch a new random noun each time
+        let formattedPhrase: string;
+        let associatedNoun: VocabularyWord | null = null;
+
         if (currentWord.part_of_speech === 'adjective') {
-          const noun = await fetchRandomNoun(config.level);
-          const formatted = formatWordForPronunciation(currentWord, noun);
-          setFormattedWord({ text: formatted, associatedNoun: noun });
+          associatedNoun = await fetchRandomNoun(config.level);
+        }
+
+        formattedPhrase = formatWordForDisplay(
+          currentWord, 
+          associatedNoun, 
+          config.practiceMode === 'identification'
+        );
+
+        if (config.practiceMode === 'pronunciation') {
+          setFormattedWord({ 
+            text: formattedPhrase, 
+            associatedNoun 
+          });
         } else {
-          const formatted = formatWordForPronunciation(currentWord);
-          setFormattedWord({ text: formatted });
+          setIsGeneratingImage(true);
+          try {
+            const response = await fetch('http://localhost:8000/images/generate_image', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                phrase: formatWordForDisplay(currentWord, associatedNoun, false),
+                cefr_level: config.level,
+                part_of_speech: currentWord.part_of_speech
+              }),
+            });
+
+            if (!response.ok) {
+              throw new Error('Failed to generate image');
+            }
+
+            const data = await response.json();
+            const imagePath = data.image_path.startsWith('/') ? data.image_path : `/${data.image_path}`;
+            
+            setFormattedWord({
+              text: formattedPhrase,
+              associatedNoun,
+              imagePath: imagePath
+            });
+          } catch (error) {
+            console.error('Error generating image:', error);
+            setFormattedWord({
+              text: formattedPhrase,
+              associatedNoun,
+              imagePath: undefined
+            });
+          } finally {
+            setIsGeneratingImage(false);
+          }
         }
       }
     };
     formatWord();
-  }, [flashcardState.currentIndex, flashcardState.words, config.level, shouldRefreshNoun]);
+  }, [flashcardState.currentIndex, flashcardState.words, config.level, config.practiceMode, shouldRefreshNoun]);
 
   const renderFlashcard = () => {
     const { words, currentIndex, isLoading, error } = flashcardState;
@@ -443,12 +588,124 @@ const Flashcards = () => {
     }
 
     return (
-      <>
-        <Typography variant="h2" gutterBottom align="center" sx={{ mb: 4 }}>
-          {formattedWord.text}
-        </Typography>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        {/* Main Content Area */}
+        <Box sx={{ 
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          mb: 4
+        }}>
+          {/* Text display with reveal and translation buttons */}
+          <Box sx={{ textAlign: 'center', mb: 2 }}>
+            <Typography variant="h2" gutterBottom>
+              {isRevealed 
+                ? formatWordForDisplay(
+                    words[currentIndex],
+                    formattedWord.associatedNoun,
+                    false
+                  )
+                : formattedWord.text
+              }
+            </Typography>
+            {isTranslationVisible && (
+              <Typography 
+                variant="h4" 
+                color="text.secondary"
+                sx={{ mb: 2 }}
+              >
+                {formatEnglishTranslation(
+                  words[currentIndex],
+                  formattedWord.associatedNoun
+                )}
+              </Typography>
+            )}
+            <Stack 
+              direction="row" 
+              spacing={2} 
+              justifyContent="center"
+              sx={{ mt: 1 }}
+            >
+              <Button
+                variant="outlined"
+                onClick={handleReveal}
+              >
+                {isRevealed ? 'Hide' : 'Reveal'} Phrase
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={handleTranslationToggle}
+                color="secondary"
+              >
+                {isTranslationVisible ? 'Hide' : 'Show'} Translation
+              </Button>
+            </Stack>
+          </Box>
 
-        {/* Recording Controls */}
+          {/* Show image in identification mode */}
+          {config.practiceMode === 'identification' && (
+            <Box sx={{ 
+              width: 300,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 2,
+              mt: 2
+            }}>
+              <Box sx={{ 
+                width: 300,
+                height: 300,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative'
+              }}>
+                {formattedWord.imagePath ? (
+                  <>
+                    <Box
+                      component="img"
+                      src={`http://localhost:8000${formattedWord.imagePath}`}
+                      alt="Word visualization"
+                      sx={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'contain',
+                        borderRadius: 2,
+                        boxShadow: 3,
+                        opacity: isGeneratingImage ? 0.3 : 1,
+                        transition: 'opacity 0.3s'
+                      }}
+                    />
+                    {isGeneratingImage && (
+                      <CircularProgress
+                        sx={{
+                          position: 'absolute',
+                          top: '50%',
+                          left: '50%',
+                          transform: 'translate(-50%, -50%)'
+                        }}
+                      />
+                    )}
+                  </>
+                ) : (
+                  <CircularProgress />
+                )}
+              </Box>
+              <Button
+                variant="outlined"
+                onClick={handleRegenerateImage}
+                startIcon={<RefreshIcon />}
+                size="small"
+                disabled={isGeneratingImage}
+              >
+                {isGeneratingImage ? 'Generating...' : 'Generate New Image'}
+              </Button>
+            </Box>
+          )}
+        </Box>
+
+        {/* Recording Controls - now shown in both modes */}
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
           <IconButton
             onClick={startRecording}
@@ -463,7 +720,7 @@ const Flashcards = () => {
         {/* Recording Status */}
         {isRecording && (
           <Typography align="center" color="primary" sx={{ mb: 2 }}>
-            Recording... {/* You could add a countdown here */}
+            Recording...
           </Typography>
         )}
 
@@ -489,7 +746,8 @@ const Flashcards = () => {
             </Typography>
           </Box>
         )}
-        
+
+        {/* Navigation Controls */}
         <Box sx={{ 
           display: 'flex', 
           justifyContent: 'center', 
@@ -514,7 +772,7 @@ const Flashcards = () => {
             <ArrowForward />
           </IconButton>
         </Box>
-      </>
+      </Box>
     );
   };
 
@@ -627,7 +885,7 @@ const Flashcards = () => {
 
         {/* Flashcard Display - Right Side */}
         <Box sx={{ flex: 1 }}>
-          {flashcardState.words.length > 0 && config.practiceMode === 'pronunciation' && (
+          {flashcardState.words.length > 0 && (
             <Paper elevation={3} sx={{ 
               p: 3, 
               minHeight: '400px',

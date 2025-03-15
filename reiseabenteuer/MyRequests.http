@@ -126,3 +126,92 @@ Content-Type: application/json
     "model": "gemma2:2b",
     "prompt": "Translate the German word 'Hund' to English. Provide only the English translation, no explanaion."
 }
+
+###
+# Image Generation Tests
+###
+
+# Generate image for a noun
+POST http://localhost:8000/images/generate_image
+Content-Type: application/json
+
+{
+    "phrase": "der Hund",
+    "cefr_level": "A1",
+    "part_of_speech": "noun"
+}
+
+###
+# Generate image for a verb
+POST http://localhost:8000/images/generate_image
+Content-Type: application/json
+
+{
+    "phrase": "ich laufe",
+    "cefr_level": "A1",
+    "part_of_speech": "verb"
+}
+
+###
+# Generate image for an adjective
+POST http://localhost:8000/images/generate_image
+Content-Type: application/json
+
+{
+    "phrase": "das große Haus",
+    "cefr_level": "A1",
+    "part_of_speech": "adjective"
+}
+
+###
+# Error case - Missing HUGGING_FACE_TOKEN
+POST http://localhost:8000/images/generate_image
+Content-Type: application/json
+
+{
+    "phrase": "der Hund",
+    "cefr_level": "A1",
+    "part_of_speech": "noun"
+}
+
+###
+# Error case - Invalid CEFR level
+POST http://localhost:8000/images/generate_image
+Content-Type: application/json
+
+{
+    "phrase": "der Hund",
+    "cefr_level": "D1",
+    "part_of_speech": "noun"
+}
+
+###
+# Error case - Invalid part of speech
+POST http://localhost:8000/images/generate_image
+Content-Type: application/json
+
+{
+    "phrase": "der",
+    "cefr_level": "A1",
+    "part_of_speech": "article"
+}
+
+###
+# Error case - Empty phrase
+POST http://localhost:8000/images/generate_image
+Content-Type: application/json
+
+{
+    "phrase": "",
+    "cefr_level": "A1",
+    "part_of_speech": "noun"
+}
+
+###
+# Error case - Missing required fields
+POST http://localhost:8000/images/generate_image
+Content-Type: application/json
+
+{
+    "phrase": "der Hund"
+}

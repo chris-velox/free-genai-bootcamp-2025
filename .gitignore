@@ -9,3 +9,5 @@ reiseabenteuer/frontend-react/node_modules/**
 reiseabenteuer/__pycache__/**
 
 reiseabenteuer/qdrant_storage/collection/german_vocabulary/storage.sqlite
+reiseabenteuer/output/**
+reiseabenteuer/pictures/**
