@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Typography,
   Box,
@@ -12,11 +12,12 @@ import {
   FormControlLabel,
   Paper,
   Stack,
-  SelectChangeEvent
+  SelectChangeEvent,
+  IconButton
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { ArrowBack, ArrowForward } from '@mui/icons-material';
-import { IconButton } from '@mui/material';
+import { ArrowBack, ArrowForward, Mic, Stop } from '@mui/icons-material';
+import { CircularProgress } from '@mui/material';
 
 interface FlashcardConfig {
   promptLanguage: 'english' | 'german';
@@ -54,9 +55,16 @@ interface FlashcardState {
   error: string | null;
 }
 
+interface PronunciationResult {
+  isCorrect: boolean;
+  transcribedText: string;
+  confidence: number;
+}
+
 interface FormattedWordState {
   text: string;
   associatedNoun?: VocabularyWord | null;
+  pronunciationResult?: PronunciationResult;
 }
 
 const defaultConfig: FlashcardConfig = {
@@ -171,6 +179,9 @@ const Flashcards = () => {
   });
   const [formattedWord, setFormattedWord] = useState<FormattedWordState>({ text: '' });
   const [shouldRefreshNoun, setShouldRefreshNoun] = useState<boolean>(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
   const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
   const partsOfSpeech = [
@@ -258,6 +269,134 @@ const Flashcards = () => {
     }
   };
 
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          channelCount: 1,
+          sampleRate: 16000
+        } 
+      });
+
+      // Check supported MIME types
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm')
+        ? 'audio/webm'
+        : 'audio/mp4';
+
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: mimeType
+      });
+      
+      const audioChunks: BlobPart[] = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunks.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        try {
+          const audioBlob = new Blob(audioChunks, { type: mimeType });
+          await checkPronunciation(audioBlob);
+        } catch (error) {
+          console.error('Error processing recording:', error);
+          setFormattedWord(prev => ({
+            ...prev,
+            pronunciationResult: {
+              isCorrect: false,
+              transcribedText: 'Error processing audio. Please try again.',
+              confidence: 0
+            }
+          }));
+        } finally {
+          stream.getTracks().forEach(track => track.stop());
+        }
+      };
+
+      mediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.start(100); // Record in 100ms chunks
+      setIsRecording(true);
+
+      // Stop recording after 5 seconds
+      setTimeout(() => {
+        if (mediaRecorder.state === 'recording') {
+          mediaRecorder.stop();
+          setIsRecording(false);
+        }
+      }, 5000);
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+      setIsRecording(false);
+      setFormattedWord(prev => ({
+        ...prev,
+        pronunciationResult: {
+          isCorrect: false,
+          transcribedText: 'Error accessing microphone. Please check permissions.',
+          confidence: 0
+        }
+      }));
+    }
+  };
+
+  const checkPronunciation = async (audioBlob: Blob) => {
+    setIsChecking(true);
+    try {
+      // Convert blob to base64
+      const base64Audio = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          if (typeof reader.result === 'string') {
+            // Extract the base64 part after the data URL prefix
+            const base64Data = reader.result.split(',')[1];
+            resolve(base64Data);
+          } else {
+            reject(new Error('Failed to convert audio to base64'));
+          }
+        };
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(audioBlob);
+      });
+
+      const response = await fetch('http://localhost:8000/check_recording', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          audio_data: base64Audio,
+          expected_text: formattedWord.text
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to check pronunciation: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      setFormattedWord(prev => ({
+        ...prev,
+        pronunciationResult: {
+          isCorrect: result.is_correct,
+          transcribedText: result.transcribed_text,
+          confidence: result.confidence
+        }
+      }));
+    } catch (error) {
+      console.error('Error checking pronunciation:', error);
+      setFormattedWord(prev => ({
+        ...prev,
+        pronunciationResult: {
+          isCorrect: false,
+          transcribedText: 'Error processing audio',
+          confidence: 0
+        }
+      }));
+    } finally {
+      setIsChecking(false);
+    }
+  };
+
   const isFormValid = config.level && config.partOfSpeech && config.cardCount > 0;
 
   // Update the effect to handle noun fetching
@@ -308,6 +447,48 @@ const Flashcards = () => {
         <Typography variant="h2" gutterBottom align="center" sx={{ mb: 4 }}>
           {formattedWord.text}
         </Typography>
+
+        {/* Recording Controls */}
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+          <IconButton
+            onClick={startRecording}
+            disabled={isRecording || isChecking}
+            color={isRecording ? 'error' : 'primary'}
+            size="large"
+          >
+            {isRecording ? <Stop /> : <Mic />}
+          </IconButton>
+        </Box>
+
+        {/* Recording Status */}
+        {isRecording && (
+          <Typography align="center" color="primary" sx={{ mb: 2 }}>
+            Recording... {/* You could add a countdown here */}
+          </Typography>
+        )}
+
+        {/* Checking Status */}
+        {isChecking && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+            <CircularProgress size={24} />
+          </Box>
+        )}
+
+        {/* Pronunciation Results */}
+        {formattedWord.pronunciationResult && (
+          <Box sx={{ textAlign: 'center', mb: 3 }}>
+            <Typography
+              color={formattedWord.pronunciationResult.isCorrect ? 'success.main' : 'error.main'}
+              variant="h6"
+              gutterBottom
+            >
+              {formattedWord.pronunciationResult.isCorrect ? 'Correct!' : 'Try Again'}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Heard: {formattedWord.pronunciationResult.transcribedText}
+            </Typography>
+          </Box>
+        )}
         
         <Box sx={{ 
           display: 'flex', 

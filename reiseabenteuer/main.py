@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from destinations import router as destinations_router
 from german_vocabulary_api import router as vocabulary_router
+from pronunciation_api import router as pronunciation_router
 import uvicorn
 
 app = FastAPI(
@@ -29,6 +30,11 @@ app.include_router(
     vocabulary_router,
     prefix="/vocabulary",
     tags=["vocabulary"]
+)
+
+app.include_router(
+    pronunciation_router,
+    tags=["pronunciation"]
 )
 
 if __name__ == "__main__":

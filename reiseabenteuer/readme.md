@@ -99,3 +99,16 @@ Vocabulary word list from https://github.com/Nordsword3m/German-Words.
 ```sh
 uv pip install diffusers transformers torch
 ```
+
+## Added frontend for flashcards
+
+Modified backend to return random words, not same words over and over.
+
+Modified front end to display some words in context to reinforce verb conjugations, use of types of adjectives based on word singular/plural and proper articles for nouns.
+
+### Adding sound recording
+
+```sh
+pip install whisper sounddevice numpy soundfile
+npm install @mui/icons-material
+```
