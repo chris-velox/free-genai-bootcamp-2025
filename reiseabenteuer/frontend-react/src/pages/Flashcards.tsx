@@ -173,6 +173,15 @@ const formatWordForDisplay = (
   }
 };
 
+const getEnglishPartOfSpeech = (germanPos: string): string => {
+  const posMap: { [key: string]: string } = {
+    'noun': 'noun',
+    'verb': 'verb',
+    'adjective': 'adjective'
+  };
+  return posMap[germanPos] || germanPos;
+};
+
 const Flashcards = () => {
   const theme = useTheme();
   const [config, setConfig] = useState<FlashcardConfig>(defaultConfig);
@@ -426,22 +435,22 @@ const Flashcards = () => {
 
     const currentWord = flashcardState.words[flashcardState.currentIndex];
     setIsGeneratingImage(true);
-    // Clear the current image to show loading indicator
     setFormattedWord(prev => ({
       ...prev,
       imagePath: undefined
     }));
     
     try {
+      const englishPhrase = formatEnglishTranslation(currentWord, formattedWord.associatedNoun);
       const response = await fetch('http://localhost:8000/images/generate_image', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          phrase: formatWordForDisplay(currentWord, formattedWord.associatedNoun, false),
+          phrase: englishPhrase,
           cefr_level: config.level,
-          part_of_speech: currentWord.part_of_speech,
+          part_of_speech: getEnglishPartOfSpeech(currentWord.part_of_speech),
           force_regenerate: true
         }),
       });
@@ -524,15 +533,16 @@ const Flashcards = () => {
         } else {
           setIsGeneratingImage(true);
           try {
+            const englishPhrase = formatEnglishTranslation(currentWord, associatedNoun);
             const response = await fetch('http://localhost:8000/images/generate_image', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                phrase: formatWordForDisplay(currentWord, associatedNoun, false),
+                phrase: englishPhrase,
                 cefr_level: config.level,
-                part_of_speech: currentWord.part_of_speech
+                part_of_speech: getEnglishPartOfSpeech(currentWord.part_of_speech)
               }),
             });
 
