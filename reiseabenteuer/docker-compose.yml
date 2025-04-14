@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./pictures:/app/pictures
+      - ./output:/app/output
+      - ./qdrant_storage:/app/qdrant_storage
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  frontend:
+    build: 
+      context: ./frontend-react
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000 

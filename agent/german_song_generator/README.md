@@ -18,6 +18,43 @@ Next, navigate to your project directory and install the dependencies:
 ```bash
 crewai install
 ```
+
+## Docker Support
+
+You can also run this project using Docker. The project includes a Dockerfile for containerized deployment.
+
+### Building the Docker Image
+
+```bash
+# From the project root directory
+docker build -t german-song-generator .
+```
+
+### Running with Docker
+
+The container requires your GROQ API key to function. You can provide it as an environment variable:
+
+```bash
+docker run -e GROQ_API_KEY=your_api_key german-song-generator
+```
+
+To override the default model:
+```bash
+docker run -e MODEL=different_model -e GROQ_API_KEY=your_api_key german-song-generator
+```
+
+Available commands:
+```bash
+# Run the main application
+docker run german-song-generator
+
+# Run training
+docker run german-song-generator train
+
+# Run tests
+docker run german-song-generator test
+```
+
 ### Customizing
 
 **Add your `OPENAI_API_KEY` into the `.env` file**

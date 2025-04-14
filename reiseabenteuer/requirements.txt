@@ -1,0 +1,16 @@
+fastapi
+pydantic
+uvicorn
+duckduckgo_search
+deep_translator
+trafilatura
+beautifulsoup4
+qdrant_client
+sentence_transformers
+numpy<2
+sounddevice
+git+https://github.com/openai/whisper.git
+diffusers
+transformers
+torch
+soundfile 

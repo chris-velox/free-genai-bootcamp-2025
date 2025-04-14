@@ -112,3 +112,45 @@ Modified front end to display some words in context to reinforce verb conjugatio
 pip install whisper sounddevice numpy soundfile
 npm install @mui/icons-material
 ```
+
+## Running with Docker
+
+The application can be run using Docker containers. This is the recommended way to run the application as it ensures all dependencies are properly installed and configured.
+
+### Prerequisites
+
+- Docker
+- Docker Compose
+
+### Running the Application
+
+1. Clone the repository
+2. Navigate to the project directory
+3. Build and start the containers:
+
+```sh
+docker-compose up --build
+```
+
+This will:
+- Build and start the backend API server on http://localhost:8000
+- Build and start the React frontend on http://localhost:3000
+
+To stop the application:
+
+```sh
+docker-compose down
+```
+
+### Persistent Data
+
+The following directories are persisted as Docker volumes:
+- `./pictures`: Stores generated images
+- `./output`: Stores output files
+- `./qdrant_storage`: Stores vector database data
+
+### Environment Variables
+
+Make sure your `.env` file is properly configured with any required API keys before building the containers.
+
+
