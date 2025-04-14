@@ -13,4 +13,5 @@ git+https://github.com/openai/whisper.git
 diffusers
 transformers
 torch
-soundfile 
+soundfile
+python-dotenv 

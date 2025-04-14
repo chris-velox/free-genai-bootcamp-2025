@@ -9,8 +9,13 @@ services:
       - ./pictures:/app/pictures
       - ./output:/app/output
       - ./qdrant_storage:/app/qdrant_storage
+      - huggingface_cache:/root/.cache/huggingface
+      - whisper_cache:/root/.cache/whisper
+      - model_storage:/app/sentence-transformers
     environment:
       - PYTHONUNBUFFERED=1
+      - TRANSFORMERS_CACHE=/root/.cache/huggingface
+      - HF_HOME=/root/.cache/huggingface
 
   frontend:
     build: 
@@ -21,4 +26,12 @@ services:
     depends_on:
       - backend
     environment:
-      - REACT_APP_API_URL=http://localhost:8000 
+      - REACT_APP_API_URL=http://localhost:8000
+
+volumes:
+  huggingface_cache:
+    driver: local
+  whisper_cache:
+    driver: local
+  model_storage:
+    driver: local 

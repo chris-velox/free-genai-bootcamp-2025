@@ -1,0 +1,34 @@
+# Frontend related
+frontend-react/
+frontend-react/*
+
+# Development and environment files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.venv
+
+# Version control
+.git
+.gitignore
+
+# IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local data and cache
+pictures/*
+output/*
+qdrant_storage/*
+
+# Keep the directories but not their contents
+!pictures/.gitkeep
+!output/.gitkeep
+!qdrant_storage/.gitkeep 
