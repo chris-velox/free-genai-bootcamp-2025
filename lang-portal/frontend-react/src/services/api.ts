@@ -105,10 +105,7 @@ export interface GroupWordsResponse {
 }
 
 export const fetchGroupDetails = async (
-  groupId: number,
-  page: number = 1,
-  sortBy: string = 'kanji',
-  order: 'asc' | 'desc' = 'asc'
+  groupId: number
 ): Promise<GroupDetails> => {
   const response = await fetch(`${API_BASE_URL}/groups/${groupId}`);
   if (!response.ok) {
@@ -133,19 +130,19 @@ export const fetchGroupWords = async (
 };
 
 // Word API
-export const fetchWords = async (
+export async function fetchWords(
   page: number = 1,
-  sortBy: string = 'kanji',
-  order: 'asc' | 'desc' = 'asc'
-): Promise<WordsResponse> => {
+  sortBy: string = 'created_at',
+  order: 'asc' | 'desc' = 'desc'
+): Promise<{ words: Word[]; total_pages: number }> {
   const response = await fetch(
-    `${API_BASE_URL}/words?page=${page}&sort_by=${sortBy}&order=${order}`
+    `${API_BASE_URL}/api/words?page=${page}&sort_by=${sortBy}&order=${order}`
   );
   if (!response.ok) {
     throw new Error('Failed to fetch words');
   }
   return response.json();
-};
+}
 
 export const fetchWordDetails = async (wordId: number): Promise<Word> => {
   const response = await fetch(`${API_BASE_URL}/words/${wordId}`);

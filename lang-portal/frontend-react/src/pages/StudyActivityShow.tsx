@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useNavigation } from '@/context/NavigationContext'
 import StudySessionsTable from '@/components/StudySessionsTable'
@@ -144,7 +144,15 @@ export default function StudyActivityShow() {
       {sessionData && sessionData.items.length > 0 && (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold mb-4">Study Sessions</h2>
-          <StudySessionsTable sessions={sessionData.items} />
+          <StudySessionsTable 
+            sessions={sessionData.items} 
+            sortKey="start_time"
+            sortDirection="desc"
+            onSort={(newKey) => {
+              // TODO: Implement sorting logic here
+              console.log('Sorting by:', newKey)
+            }}
+          />
           {sessionData.total_pages > 1 && (
             <div className="mt-4">
               <Pagination

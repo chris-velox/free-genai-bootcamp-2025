@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface LearnKanaProps {
     kanaType: 'Hiragana' | 'Katakana';
 }

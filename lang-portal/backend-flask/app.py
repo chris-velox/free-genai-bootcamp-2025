@@ -10,6 +10,7 @@ import routes.dashboard
 import routes.study_activities
 import routes.vocab_importer
 import routes.writing_practice
+import os
 from dotenv import load_dotenv
 
 load_dotenv()

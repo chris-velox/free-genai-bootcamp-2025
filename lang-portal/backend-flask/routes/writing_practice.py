@@ -1,15 +1,28 @@
 from flask import request, jsonify
 from flask_cors import cross_origin
 import random
-from manga_ocr import MangaOcr
 import base64
 import io
 from PIL import Image
 import numpy as np
 from kana_dictionary import ROMAJI_TO_HIRAGANA, ROMAJI_TO_KATAKANA
 
-# Initialize manga_ocr outside the routes for efficiency
-mocr = MangaOcr()
+# Lazy initialization of manga_ocr
+_mocr = None
+
+def get_mocr():
+    """Lazy initialization of MangaOcr"""
+    global _mocr
+    if _mocr is None:
+        try:
+            from manga_ocr import MangaOcr
+            _mocr = MangaOcr()
+        except Exception as e:
+            print(f"Error initializing MangaOcr: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return None
+    return _mocr
 
 def get_kana_dict(kana_type):
     """Helper function to get the appropriate kana dictionary"""
@@ -53,6 +66,11 @@ def load(app):
     def verify_kana():
         """Verify the drawn kana using manga-ocr"""
         try:
+            # Initialize MangaOcr if needed
+            mocr = get_mocr()
+            if mocr is None:
+                return jsonify({'error': 'OCR service not available'}), 503
+
             data = request.json
             if not all(k in data for k in ['image', 'expectedKana', 'expectedRomaji', 'kanaType']):
                 return jsonify({'error': 'Missing required fields'}), 400

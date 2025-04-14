@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { fetchWords, type Word } from '../services/api'
 import WordsTable, { WordSortKey } from '../components/WordsTable'
 
